@@ -8,9 +8,9 @@
 #include "BpTree.h"
 
 bool testSearchLeaf(){
-	void* testNode = new LeafNode(99);
-	for(int i = 0; i < 99; i++){
-		((Node*)testNode)->insert(2*i, "test");
+	void* testNode = new LeafNode(5);
+	for(int i = 0; i < 4; i++){
+		testNode = ((Node*)testNode)->insert(2*i, "test");
 	}
 
 	if( ((Node*)testNode)->find(0) != "test"){
@@ -28,19 +28,20 @@ bool testSearchLeaf(){
 
 bool testSearchFull(){
 	void* testNode = new LeafNode(3);
-	for(int i = 0; i < 12; i++){
-		((Node*)testNode)->insert(i, "test");
-		if(i == 4) break;
+	for(int i = 0; i < 9; i++){
+		if(i == 4) continue;
+		testNode = ((Node*)testNode)->insert(i, "test");
+		
 	}
 
 	//search for entry at beginning of index
-	if( ((Node*)testNode)->find(1) != "test"){
+	if( ((Node*)testNode)->find(1).compare("test") != 0){
 		std::cout << "Failed test 1\n";
 		return false;
 	}
 
 	//search for entry towards end of index
-	if( ((Node*)testNode)->find(10) != "test"){
+	if( ((Node*)testNode)->find(8) != "test"){
 		std::cout << "Failed test 2\n";
 		return false;
 	}

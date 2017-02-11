@@ -34,8 +34,8 @@ std::string Node::find(int key){
 	return "";
 }
 
-void Node::printNode(void) {
-	return;
+void Node::printNode() const{
+	
 }
 
 //-----------------------------------
@@ -111,11 +111,11 @@ void* InnerNode::insertFromChild(int key, void* child){
 		extra = child;
 		return this;
 	}
-
 	auto insertionPoint = keyPointerIndex.begin();
 
 	if(keyPointerIndex.empty()){
-		keyPointerIndex.push_back(std::pair<int, void*>(key, child));
+		keyPointerIndex.insert(keyPointerIndex.begin(), std::pair<int, void*>(key, child) );
+		//keyPointerIndex.push_back(std::pair<int, void*>(key, child));
 		return this;
 	}
 
@@ -152,7 +152,6 @@ void* InnerNode::split(){
 	//Move last (n+1)/2 keys to the new node
 	int key;
 	void* child;
-	std::cout << "Created new node, moving values over in InnerNode\n";
 	for(int i = (nodeSize +2)/2; i  < keyPointerIndex.size(); i++){
 		key = keyPointerIndex.at(i).first; //extract key
 		child = keyPointerIndex.at(i).second; //extract sting value
@@ -161,7 +160,6 @@ void* InnerNode::split(){
 	for(int i = (nodeSize + 2)/2; i < nodeSize +1; i++){
 		keyPointerIndex.pop_back(); //remove the entries we just copied over
 	}
-	std::cout << "Finished moving values over in InnerNode\n";
 	//key, value pair of new node to insert to parent 
 	std::pair<int, void*> p = ((InnerNode *)rightSibling)->keyPointerIndex.at(0);
 
@@ -184,24 +182,18 @@ void* InnerNode::split(){
 std::string InnerNode::find(int key){
 	int i;
 
-	for(i = 0; i < keyPointerIndex.size(); i++){
-		if(key < keyPointerIndex.at(i).first){
-			continue;
-		}
-		else{
-			break;
-		}
+	if(key < keyPointerIndex.at(0).first){
+		return ((Node*)extra)->find(key);
 	}
 
-	if(i == 0){
-			return ((Node*)extra)->find(key);
+	for(i = 1; i < keyPointerIndex.size() && key > keyPointerIndex.at(i).first; i++){
 	}
 
 	void* nextNode = keyPointerIndex.at(i-1).second;
 	return ((Node*)nextNode)->find(key);
 }
 
-void InnerNode::printNode(){
+void InnerNode::printNode() const{
 	std::cout << "[";
 	if(keyPointerIndex.size() > 0){
 		std::cout << keyPointerIndex.at(0).first;
@@ -241,7 +233,6 @@ void* LeafNode::insert(int key, std::string value){
 	keyValueIndex.insert(insertionPoint, std::pair<int, std::string>(key, value));
 
 	if(keyValueIndex.size() > nodeSize){
-		std::cout<<"preparing to split node" << std::endl;
 		return split();
 	}
 
@@ -277,7 +268,6 @@ void* LeafNode::split(){
 	iterator--;
 	int key;
 	std::string value;
-	std::cout << "Created new node, moving values over\n";
 	for(int i = 0; i < (nodeSize +1)/2; i++){
 		key = iterator->first; //extract key
 		value = iterator->second; //extract sting value
@@ -285,7 +275,6 @@ void* LeafNode::split(){
 		keyValueIndex.pop_back(); //delete old key,string pair
 		((LeafNode *)rightSibling)->insert(key, value);
 	}
-	std::cout << "Finished moving values over\n";
 	//key, value pair of new node to insert to parent 
 	std::pair<int, std::string> p = ((LeafNode *)rightSibling)->keyValueIndex.at(0);
 
@@ -307,7 +296,7 @@ void* LeafNode::split(){
 }
 
 std::string LeafNode::find(int key){
-	for(int i = 0; i < keyValueIndex.size() && key <= keyValueIndex.at(i).first; i++){
+	for(int i = 0; i < keyValueIndex.size(); i++){
 		if(keyValueIndex.at(i).first == key){
 			return keyValueIndex.at(i).second;
 		}
