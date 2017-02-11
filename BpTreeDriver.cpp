@@ -10,14 +10,10 @@
 int main(){
 	std::cout <<"Driver program\n";
 	void* testNode = new LeafNode(3);
-	for(int i = 1; i < 10; i++){
-		if(InnerNode* node = static_cast<InnerNode*>(testNode))
-		{
-			((InnerNode*)testNode)->insert(i, "");		
-		}
-		else{
-			testNode = ((LeafNode*)testNode)->insert(i, "") ;
-		}
+	std::cout <<"Made node\n";
+	for(int i = 1; i < 20; i++){
+		std::cout << "Inserting " << i <<"\n";
+		((Node*)testNode)->insert(i, "");
 	
 	}
 	((LeafNode*)testNode)->printNode();

@@ -23,7 +23,7 @@ class Node{
 
 		~Node();
 
-		bool insert(int key, std::string value);
+		virtual void* insert(int key, std::string value);
 
 	protected:
 		int nodeSize; //max number of keys in the node
@@ -51,7 +51,7 @@ class InnerNode : public Node{
 		 *the tree, insert will return false to specify that the insertion failed
 		 *returns true if the insertion succeeds
 		 */
-		bool insert(int key, std::string value);
+		void* insert(int key, std::string value);
 
 		/*
 		 *returns true if the Node is full
@@ -64,7 +64,7 @@ class InnerNode : public Node{
 		/*put stuff here
 		 *
 		 */
-		void* insert(int key, void* child);
+		void* insertFromChild(int key, void* child);
 
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
@@ -83,6 +83,11 @@ class InnerNode : public Node{
 		 *pointer to the parent
 		 */
 		void* split();
+
+		/*
+		 *Locates the leaf that would contain the specified key
+		 */
+		void* findLeaf(int key);
 
 
 };
