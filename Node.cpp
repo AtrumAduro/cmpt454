@@ -285,5 +285,10 @@ void* LeafNode::split(){
 }
 
 std::string LeafNode::find(int key){
+	for(int i = 0; i < keyValueIndex.size() && key <= keyValueIndex.at(i).first; i++){
+		if(keyValueIndex.at(i).first == key){
+			return keyValueIndex.at(i).second;
+		}
+	}
 	return "";
 }
