@@ -194,7 +194,7 @@ std::string InnerNode::find(int key){
 	}
 
 	void* nextNode = keyPointerIndex.at(i-1).second;
-	return ((Node*)nextNode)->insert(key, value);
+	return ((Node*)nextNode)->find(key);
 }
 //-----------------------------------
 //LeafNode implementation
