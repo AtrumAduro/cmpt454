@@ -33,7 +33,7 @@ class Node{
 
 };
 
-class InnerNode : Node{
+class InnerNode : public Node{
 	public:
 		/*
 		 *Default constructor. Constructs of node with a max number of keys n
@@ -61,16 +61,33 @@ class InnerNode : Node{
 		 */
 		bool isFull() const;
 
+		/*put stuff here
+		 *
+		 */
+		void* insert(int key, void* child);
+
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
-		//When searching through the tree, look for the largest index i such that index[i] < key <= index[i+1]
-		//if the search key is larger than the last key in the vector, follow the extra pointer to the correct node
+		//extra points to the Node with smallest key values
+		//for all other keys, serach until searchkey < indexKey, then follow previous index's pointer
 		std::vector <std::pair <int, void*> > keyPointerIndex; 
 		void* extra;
 
+		/*
+		 *Splits the Node into two 
+		 *Nodes can only contain maximum nodeSize number of keys. If an insertion
+		 *would cause this to be exceeded, the Node must be split
+		 *ceiling of (n+1)/2 keys will remain in the original Node, rest will be in new NOde
+		 *After splitting, reference pointer will be inserted in parent
+		 *If there is no parent (ie we are splitting the root) create a new root Node and return
+		 *pointer to the parent
+		 */
+		void* split();
+
+
 };
 
-class LeafNode : Node{
+class LeafNode : public Node{
 	public:
 		/*
 		 *Default constructor. Constructs a leaf node with a max number of keys n
@@ -88,7 +105,7 @@ class LeafNode : Node{
 		 *and will return false
 		 *If insertion is successful, will return true
 		 */
-		bool insert(int key, std::string value);
+		void* insert(int key, std::string value);
 
 		/*
 		 *Prints the Node's keys to the console to check structure of the tree
@@ -96,8 +113,21 @@ class LeafNode : Node{
 		 */
 		void printNode() const;
 
+
+
 	private:
 		//list of integer keys and their corresponding string values
 		std::vector <std::pair <int, std::string> > keyValueIndex;
+
+		/*
+		 *Splits the Node into two 
+		 *Nodes can only contain maximum nodeSize number of keys. If an insertion
+		 *would cause this to be exceeded, the Node must be split
+		 *ceiling of (n+1)/2 keys will remain in the original Node, rest will be in new NOde
+		 *After splitting, reference pointer will be inserted in parent
+		 *If there is no parent (ie we are splitting the root) create a new root Node and return
+		 *pointer to the parent
+		 */
+		void* split();
 };
 #endif

@@ -9,13 +9,18 @@
 
 int main(){
 	std::cout <<"Driver program\n";
-	LeafNode testNode(5);
-	testNode.insert(1, "1");
-	testNode.insert(2, "2");
-	testNode.insert(3, "3");
-	testNode.insert(4, "4");
-	testNode.insert(5, "5");
-
-	testNode.printNode();
+	void* testNode = new LeafNode(3);
+	for(int i = 1; i < 10; i++){
+		if(InnerNode* node = static_cast<InnerNode*>(testNode))
+		{
+			((InnerNode*)testNode)->insert(i, "");		
+		}
+		else{
+			testNode = ((LeafNode*)testNode)->insert(i, "") ;
+		}
+	
+	}
+	((LeafNode*)testNode)->printNode();
+	//testNode.printNode();
 	return 0;
 }
