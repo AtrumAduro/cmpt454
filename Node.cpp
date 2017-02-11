@@ -30,6 +30,10 @@ void* Node::insert(int key, std::string value){
  	return nullptr;
 }
 
+std::string Node::find(int key){
+	return "";
+}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
@@ -181,6 +185,10 @@ void* InnerNode::split(){
 	((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
 	return parent;
 }
+
+std::string InnerNode::find(int key){
+	return "";
+}
 //-----------------------------------
 //LeafNode implementation
 //-----------------------------------
@@ -274,4 +282,8 @@ void* LeafNode::split(){
 	((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
 	return parent;
 
+}
+
+std::string LeafNode::find(int key){
+	return "";
 }

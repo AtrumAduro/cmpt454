@@ -23,7 +23,16 @@ class Node{
 
 		~Node();
 
+		/*
+		 *Inserts the specified key, string pair to the tree
+		 */
 		virtual void* insert(int key, std::string value);
+
+		/*
+		 *Finds the string value corresponding to the specified key
+		 *If the key does not exist, return empty string ""
+		 */
+		virtual std::string find(int key);
 
 	protected:
 		int nodeSize; //max number of keys in the node
@@ -65,6 +74,9 @@ class InnerNode : public Node{
 		 *
 		 */
 		void* insertFromChild(int key, void* child);
+
+
+		std::string find(int key);
 
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
@@ -117,6 +129,8 @@ class LeafNode : public Node{
 		 *If the node contains keys 5, 8, 11, will appear as [5, 8, 11]
 		 */
 		void printNode() const;
+
+		std::string find(int key);
 
 
 
