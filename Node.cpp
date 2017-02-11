@@ -4,6 +4,7 @@
 
 #include "Node.h"
 #include <string>
+#include <iostream>
 
 Node::Node(int n){
 	nodeSize = n;
@@ -59,7 +60,13 @@ LeafNode::LeafNode(int n) : Node(n){
 
 bool LeafNode::insert(int key, std::string value){
 	std::vector< std::pair<int, std::string> >::iterator insertionPoint = keyValueIndex.begin();
-	while((*insertionPoint).first < key){
+
+	if(keyValueIndex.size() == 0){
+		keyValueIndex.push_back(std::pair<int, std::string>(key, value));
+		return true;
+	}
+
+	while((*insertionPoint).first < key && insertionPoint != keyValueIndex.end()){
 		insertionPoint++;
 	}
 
@@ -71,4 +78,17 @@ bool LeafNode::insert(int key, std::string value){
 	keyValueIndex.insert(insertionPoint, std::pair<int, std::string>(key, value));
 
 	return true;
+
+}
+
+void LeafNode::printNode() const{
+
+	std::cout << "[";
+	if(keyValueIndex.size() > 0){
+		std::cout << keyValueIndex.at(0).first;
+		for(int i = 1; i < keyValueIndex.size(); i++){
+			std::cout << ", " << keyValueIndex.at(i).first;
+		}
+	}
+	std::cout << "] ";
 }

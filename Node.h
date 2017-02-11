@@ -80,9 +80,21 @@ class LeafNode : Node{
 		/*
 		 *Default destructor
 		 */
-		~LeafNode();
+		//~LeafNode();
 
+		/*
+		 *Inserts the key, value pair into the leaf node
+		 *Duplicates are not allowed in the tree. If the new key already exists, insertion will fail
+		 *and will return false
+		 *If insertion is successful, will return true
+		 */
 		bool insert(int key, std::string value);
+
+		/*
+		 *Prints the Node's keys to the console to check structure of the tree
+		 *If the node contains keys 5, 8, 11, will appear as [5, 8, 11]
+		 */
+		void printNode() const;
 
 	private:
 		//list of integer keys and their corresponding string values
