@@ -53,20 +53,11 @@ void* InnerNode::insert(int key, std::string value){
 	}
 
 	if(i == 0){
-		if(InnerNode* node = static_cast<InnerNode*>(extra) ){ //extra is another InnerNode
-			return ((InnerNode*)extra)->insert(key, value);
-		}
-		else{
-			return ((LeafNode*)extra)->insert(key, value);
-		}
+		return ((Node*)extra)->insert(key, value);
 	}
 	
 	void* nextNode = keyPointerIndex.at(i-1).second;
-	if(InnerNode* node = static_cast<InnerNode*>(nextNode)){ //nextNode is another InnerNode
-		return ((InnerNode*)nextNode)->insert(key, value);	
-	}
-	
-	return ((LeafNode*)nextNode)->insert(key, value);
+	return ((Node*)nextNode)->insert(key, value);
 }
 
 void* InnerNode::findLeaf(int key){
