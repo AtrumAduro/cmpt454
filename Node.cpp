@@ -187,7 +187,23 @@ void* InnerNode::split(){
 }
 
 std::string InnerNode::find(int key){
-	return "";
+	int i;
+
+	for(i = 0; i < keyPointerIndex.size(); i++){
+		if(key < keyPointerIndex.at(i).first){
+			continue;
+		}
+		else{
+			break;
+		}
+	}
+
+	if(i == 0){
+			return ((Node*)extra)->find(key);
+	}
+
+	void* nextNode = keyPointerIndex.at(i-1).second;
+	return ((Node*)nextNode)->insert(key, value);
 }
 //-----------------------------------
 //LeafNode implementation
