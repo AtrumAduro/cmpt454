@@ -34,6 +34,10 @@ std::string Node::find(int key){
 	return "";
 }
 
+void Node::printNode(void) {
+	return;
+}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
@@ -194,8 +198,20 @@ std::string InnerNode::find(int key){
 	}
 
 	void* nextNode = keyPointerIndex.at(i-1).second;
-	return ((Node*)nextNode)->insert(key, value);
+	return ((Node*)nextNode)->find(key);
 }
+
+void InnerNode::printNode(){
+	std::cout << "[";
+	if(keyPointerIndex.size() > 0){
+		std::cout << keyPointerIndex.at(0).first;
+		for(int i = 1; i < keyPointerIndex.size(); i++){
+			std::cout << ", " << keyPointerIndex.at(i).first;
+		}
+	}
+	std::cout << "] ";
+}
+
 //-----------------------------------
 //LeafNode implementation
 //-----------------------------------
@@ -237,7 +253,6 @@ void* LeafNode::insert(int key, std::string value){
 }
 
 void LeafNode::printNode() const{
-
 	std::cout << "[";
 	if(keyValueIndex.size() > 0){
 		std::cout << keyValueIndex.at(0).first;

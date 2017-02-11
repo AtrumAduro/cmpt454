@@ -34,6 +34,8 @@ class Node{
 		 */
 		virtual std::string find(int key);
 
+		virtual void printNode();
+
 	protected:
 		int nodeSize; //max number of keys in the node
 		void* parent; //The parent of the node
@@ -78,6 +80,8 @@ class InnerNode : public Node{
 
 		std::string find(int key);
 
+		void printNode(void);
+		
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
 		//extra points to the Node with smallest key values
