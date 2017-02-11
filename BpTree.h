@@ -50,6 +50,6 @@
 
  	private:
  		int nodeSize;
- 		Node* root;
+ 		void* root;
  };
  #endif

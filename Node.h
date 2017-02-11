@@ -14,7 +14,9 @@
 #include <string>
 class Node{
 	public:
-
+		/*
+		 *Constructs an empty node with maximum size n
+		 */
 		Node(int n);
 
 		Node(Node& other);
@@ -23,53 +25,67 @@ class Node{
 
 		bool insert(int key, std::string value);
 
-	private:
+	protected:
 		int nodeSize; //max number of keys in the node
-		Node* parent; //The parent of the node
-		Node* rightSibling; //pointer to the next pointer in the same level of the B+tree
-		Node* leftSibling; //pointer to the previous pointer in the same level of the B+tree
+		void* parent; //The parent of the node
+		void* rightSibling; //pointer to the next pointer in the same level of the B+tree
+		void* leftSibling; //pointer to the previous pointer in the same level of the B+tree
 
 };
 
-// class InnerNode : Node{
-// 	public:
-// 		/*
-// 		 *Default constructor. Constructs of node with a max number of keys n
-// 		 */
-// 		InnerNode(int n);
+class InnerNode : Node{
+	public:
+		/*
+		 *Default constructor. Constructs of node with a max number of keys n
+		 */
+		InnerNode(int n);
 
-// 		/*
-// 		 *Default destructor
-// 		 */
-// 		~InnerNode();
+		/*
+		 *Default destructor
+		 */
+		~InnerNode();
 
-// 		bool insert(int key, std::string value);
+		/*
+		 *Inserts the string value to the node, referenced by search key
+		 *Duplicates are forbidden and so if the key already exists in
+		 *the tree, insert will return false to specify that the insertion failed
+		 *returns true if the insertion succeeds
+		 */
+		bool insert(int key, std::string value);
 
-// 	private:
-// 		//list of integer keys and their corresponding Node pointers to children within the B+tree
-// 		//When searching through the tree, look for the largest index i such that index[i] < key <= index[i+1]
-// 		//if the search key is larger than the last key in the vector, follow the extra pointer to the correct node
-// 		std::vector <pair <int, Node*> > keyPointerIndex; 
-// 		Node* extra;
+		/*
+		 *returns true if the Node is full
+		 *a Node can only hold nodeSize keys and nodeSize+1 pointers
+		 *If the number of keys equals the nodeSize, the node is considered to be full
+		 *A full node will need to be split before new keys can be added to it
+		 */
+		bool isFull() const;
 
-// };
+	private:
+		//list of integer keys and their corresponding Node pointers to children within the B+tree
+		//When searching through the tree, look for the largest index i such that index[i] < key <= index[i+1]
+		//if the search key is larger than the last key in the vector, follow the extra pointer to the correct node
+		std::vector <std::pair <int, void*> > keyPointerIndex; 
+		void* extra;
 
-// class LeafNode : Node{
-// 	public:
-// 		/*
-// 		 *Default constructor. Constructs a leaf node with a max number of keys n
-// 		 */
-// 		LeafNode(int n);
+};
 
-// 		/*
-// 		 *Default destructor
-// 		 */
-// 		~LeafNode();
+class LeafNode : Node{
+	public:
+		/*
+		 *Default constructor. Constructs a leaf node with a max number of keys n
+		 */
+		LeafNode(int n);
 
-// 		bool insert(int key, std::string value);
+		/*
+		 *Default destructor
+		 */
+		~LeafNode();
 
-// 	private:
-// 		//list of integer keys and their corresponding string values
-// 		std::vector <pair <int, std::string> > keyValueIndex;
-// };
+		bool insert(int key, std::string value);
+
+	private:
+		//list of integer keys and their corresponding string values
+		std::vector <std::pair <int, std::string> > keyValueIndex;
+};
 #endif
