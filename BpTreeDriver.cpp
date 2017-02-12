@@ -66,6 +66,38 @@ bool testSearchFull(){
 	return true;
 }
 
+bool testDeletion(){
+	void* testNode = new LeafNode(3);
+	testNode = ((Node*)testNode)->insert(0, "test");
+	testNode = ((Node*)testNode)->insert(1, "test");
+	testNode = ((Node*)testNode)->insert(3, "test");
+	testNode = ((Node*)testNode)->insert(4, "test");
+	testNode = ((Node*)testNode)->insert(2, "test");
+	testNode = ((Node*)testNode)->insert(9, "test");
+
+	std::cout << "Testing base case\n";
+	//test base case, already exists, no restructuring needed
+
+	((Node*)testNode)->remove(4);
+	if( ((Node*)testNode)->find(4) != ""){
+		std::cout << "Test 1 failed\n";
+		return false;
+	}
+
+	std::cout << "Testing borrowing from left\n";
+	((Node*)testNode)->printNode();
+	//test case 1 -- deletion requires borrowing from left sibling
+	((Node*)testNode)->remove(3);
+	if( ((Node*)testNode)->find(3) != ""){
+		std::cout << "Test 2 failed\n";
+		return false;
+	}
+	((Node*)testNode)->printNode();
+
+
+	return true;
+}
+
 int main(){
 	std::cout <<"Driver program\n";
 	
@@ -84,6 +116,17 @@ int main(){
 	}
 	else{
 		std::cout << "Find with InnerNodes failed a test\n";
+		return 1;
+	}
+
+
+	std::cout << "Testing deletion\n";
+	if(testDeletion()){
+		std::cout << "deletion passes tests\n";
+	}
+	else{
+		std::cout << "deletion failed a test";
+		return 1;
 	}
 	return 0;
 }

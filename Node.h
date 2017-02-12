@@ -36,6 +36,8 @@ class Node{
 
 		virtual void printNode() const;
 
+		virtual void remove(int key);
+
 	protected:
 		int nodeSize; //max number of keys in the node
 		void* parent; //The parent of the node
@@ -81,6 +83,10 @@ class InnerNode : public Node{
 		std::string find(int key);
 
 		void printNode() const;
+
+		void remove(int key);
+
+		void updateChildKey(int old, int newKey);
 		
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
@@ -135,6 +141,8 @@ class LeafNode : public Node{
 		void printNode() const;
 
 		std::string find(int key);
+
+		void remove(int key);
 
 
 

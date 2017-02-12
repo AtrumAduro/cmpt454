@@ -38,6 +38,8 @@ void Node::printNode() const{
 	
 }
 
+void Node::remove(int key){return;}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
@@ -49,9 +51,6 @@ void* InnerNode::insert(int key, std::string value){
 	int i;
 	for(i = 0; i < keyPointerIndex.size(); i++){
 		if(key < keyPointerIndex.at(i).first){
-			continue;
-		}
-		else{
 			break;
 		}
 	}
@@ -204,6 +203,34 @@ void InnerNode::printNode() const{
 	std::cout << "] ";
 }
 
+
+void InnerNode::remove(int key){
+	int i;
+
+	if(key < keyPointerIndex.at(0).first){
+		return ((Node*)extra)->remove(key);
+	}
+
+	for(i = 1; i < keyPointerIndex.size() && key > keyPointerIndex.at(i).first; i++){
+	}
+
+	void* nextNode = keyPointerIndex.at(i-1).second;
+	return ((Node*)nextNode)->remove(key);
+}
+
+void InnerNode::updateChildKey(int old, int newKey){
+	if(old < keyPointerIndex.at(0).first){
+		return;
+	}
+
+	for(int i = 0; i <keyPointerIndex.size(); i++){
+		if(old == keyPointerIndex.at(i).first){
+			keyPointerIndex.at(i).first = newKey;
+			return;
+		}
+	}
+}
+
 //-----------------------------------
 //LeafNode implementation
 //-----------------------------------
@@ -302,4 +329,38 @@ std::string LeafNode::find(int key){
 		}
 	}
 	return "";
+}
+
+void LeafNode::remove(int key){
+	bool flag = false;
+	auto iterator = keyValueIndex.begin();
+	int oldKey = keyValueIndex.at(0).first;
+	while(iterator != keyValueIndex.end() &&!flag){
+		if(iterator->first == key){
+			flag = true;
+			keyValueIndex.erase(iterator);
+		}
+		iterator++;
+	}
+	if(!flag){ //key was not found
+		return;
+	}
+
+	if(keyValueIndex.size() > nodeSize/2){ //still more than half full
+		return;
+	}
+
+	//The node is less than half full
+	//Case 1 -- Try to borrow from left sibling if it exists
+	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
+		if( ((LeafNode*)leftSibling)->keyValueIndex.size()-1 > nodeSize/2){
+			int key = ((LeafNode*)leftSibling)->keyValueIndex.back().first;
+			std::string value = ((LeafNode*)leftSibling)->keyValueIndex.back().second;
+			insert(key, value);
+			((LeafNode*)leftSibling)->keyValueIndex.pop_back(); //delete value from sibling
+			//update parent key
+			((InnerNode*)parent)->updateChildKey(oldKey, key);
+			return;
+		}
+	}
 }
