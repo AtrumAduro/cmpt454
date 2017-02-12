@@ -78,21 +78,40 @@ bool testDeletion(){
 	std::cout << "Testing base case\n";
 	//test base case, already exists, no restructuring needed
 
-	((Node*)testNode)->remove(4);
-	if( ((Node*)testNode)->find(4) != ""){
+	((Node*)testNode)->remove(9);
+	if( ((Node*)testNode)->find(9) != ""){
 		std::cout << "Test 1 failed\n";
 		return false;
 	}
 
-	std::cout << "Testing borrowing from left\n";
-	((Node*)testNode)->printNode();
 	//test case 1 -- deletion requires borrowing from left sibling
 	((Node*)testNode)->remove(3);
 	if( ((Node*)testNode)->find(3) != ""){
 		std::cout << "Test 2 failed\n";
 		return false;
 	}
-	((Node*)testNode)->printNode();
+
+	//test case 2 -- deletion requires borrowing from right sibling
+	testNode = ((Node*)testNode)->insert(5, "test");
+	((Node*)testNode)->remove(1);
+	if( ((Node*)testNode)->find(1) != ""){
+		std::cout << "Test 3 failed\n";
+		return false;
+	}
+
+	//test case 3 -- deletion requires coalescing with left sibling
+	//Tree structure at this point SPECIAL CASE BAD EXAMPLE
+	// [4]
+	// [0 2] [4 5]
+	// delete 4 to force left coalesce
+	((Node*)testNode)->remove(4);
+
+	std::cout << "removal finished\n";
+	if( ((Node*)testNode)->find(4) != ""){
+		std::cout << "Test 4 Failed\n"; //ruh roh
+ 		return false;
+	}
+	
 
 
 	return true;
@@ -100,7 +119,7 @@ bool testDeletion(){
 
 int main(){
 	std::cout <<"Driver program\n";
-	
+
 	std::cout << "Testing find() in LeafNode\n";
 	if(testSearchLeaf()){
 		std::cout << "Find in LeafNode passes tests\n";

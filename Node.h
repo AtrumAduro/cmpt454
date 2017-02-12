@@ -38,6 +38,7 @@ class Node{
 
 		virtual void remove(int key);
 
+		virtual int getKey() const;
 	protected:
 		int nodeSize; //max number of keys in the node
 		void* parent; //The parent of the node
@@ -87,6 +88,10 @@ class InnerNode : public Node{
 		void remove(int key);
 
 		void updateChildKey(int old, int newKey);
+
+		void* removeLeftChild(void* deadChild);
+
+		int getKey() const;
 		
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
@@ -144,6 +149,7 @@ class LeafNode : public Node{
 
 		void remove(int key);
 
+		int getKey() const;
 
 
 	private:
