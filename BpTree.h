@@ -7,7 +7,7 @@
 
 #include <string>
 #include "Node.h"
- class BpTree{
+class BpTree{
  	public:
 
  		/*

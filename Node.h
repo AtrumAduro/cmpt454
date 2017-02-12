@@ -24,21 +24,35 @@ class Node{
 		~Node();
 
 		/*
-		 *Inserts the specified key, string pair to the tree
+		 *Insertion to general Node. All real implementation is taken care of
+		 *in the subclasses InnerNode and LeafNode
 		 */
 		virtual void* insert(int key, std::string value);
 
 		/*
-		 *Finds the string value corresponding to the specified key
-		 *If the key does not exist, return empty string ""
+		 *search in general Node. All real implementation is taken care of
+		 *in the subclasses InnerNode and LeafNode
 		 */
 		virtual std::string find(int key);
 
+		/*
+		 *General printNode. All real implementation is taken care of
+		 *in the subclasses InnerNode and LeafNode
+		 */
 		virtual void printNode() const;
-
+		
+		/*
+		 *General removal. All real implementation is taken care of
+		 *in the subclasses InnerNode and LeafNode
+		 */
 		virtual void remove(int key);
-
+		
+		/*
+		 *General key lookup. All real implementation is taken care of
+		 *in the subclasses InnerNode and LeafNode
+		 */
 		virtual int getKey() const;
+		
 	protected:
 		int nodeSize; //max number of keys in the node
 		void* parent; //The parent of the node
@@ -60,10 +74,11 @@ class InnerNode : public Node{
 		~InnerNode();
 
 		/*
-		 *Inserts the string value to the node, referenced by search key
-		 *Duplicates are forbidden and so if the key already exists in
-		 *the tree, insert will return false to specify that the insertion failed
-		 *returns true if the insertion succeeds
+		 *Inserts the key, value pair to the B+Tree
+		 *Values are stored in leaf nodes, so the InnerNode searches for the correct node
+		 *to store the value.
+		 *
+		 *Returns a pointer to the root of the B+tree
 		 */
 		void* insert(int key, std::string value);
 
@@ -75,22 +90,45 @@ class InnerNode : public Node{
 		 */
 		bool isFull() const;
 
-		/*put stuff here
-		 *
+		/*
+		 *If a child node has too many values inserted, it will split. The new Node created will then need to be
+		 *added to its parent.
+		 *Inserts the search key and Node pointer to the new child in the keyPointerIndex and returns the root
+		 *of the B+tree
 		 */
 		void* insertFromChild(int key, void* child);
 
-
+		/*
+		 *Searches through the B+tree to retrieve the value corresponding to the specified key
+		 *if the key is not found within the tree, returns the empty string ""
+		 */
 		std::string find(int key);
 
+		/*
+		 *Prints the contents of the Node to standard output
+		 */
 		void printNode() const;
 
+		/*
+		 *Removes the key and its corresponding value from the B+Tree
+		 *If this causes a Node or Nodes to be less than half full, keys and reference pointers may
+		 *need to be rearranged to maintain proper tree structure
+		 */
 		void remove(int key);
 
+		/*
+		 *updates the keys to match a modified child node
+		 */
 		void updateChildKey(int old, int newKey);
 
+		/*
+		 *Removes the references to the deleted child Node from the InnerNode
+		 */
 		void* removeLeftChild(void* deadChild);
 
+		/*
+		 *Returns the first key of the Node for indexing
+		 */
 		int getKey() const;
 		
 	private:
@@ -112,7 +150,8 @@ class InnerNode : public Node{
 		void* split();
 
 		/*
-		 *Locates the leaf that would contain the specified key
+		 *Returns a pointer to the leafNode that either contains the specified key, or would hold
+		 *the key after it was inserted to the Tree
 		 */
 		void* findLeaf(int key);
 
@@ -145,10 +184,21 @@ class LeafNode : public Node{
 		 */
 		void printNode() const;
 
+		/*
+		 *Returns the string value corresonding with key
+		 *If key is not in the tree, returns the empty string ""
+		 */
 		std::string find(int key);
 
+		/*
+		 *Removes the key from the leaf Node. If this would cause the node to be less than half full
+		 *will rearrange keys and values from sibling nodes to maintain structure of the tree
+		 */
 		void remove(int key);
 
+		/*
+		 *Returns the first key of the Node for indexing
+		 */
 		int getKey() const;
 
 

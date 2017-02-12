@@ -1,11 +1,21 @@
 /*
  *Node.cpp
+ *Implementation for the Node of a B+ tree. Nodes are split into inner nodes, which contain pointers
+ *to other nodes in the tree or leaf nodes, which contain string values
+ *
+ *The maximum number of keys in a Node is given by the nodeSize. With the exception of the root of 
+ *the tree, Nodes must be at least half-full, ie they must contain at least (nodeSize/2) keys
+ *
+ *Authors: Dave Gill, Jackie Lang
  */
 
 #include "Node.h"
 #include <string>
 #include <iostream>
 
+/*
+ *Constructs an empty node with maximum size n
+ */
 Node::Node(int n){
 	nodeSize = n;
 	parent = nullptr;
@@ -14,32 +24,47 @@ Node::Node(int n){
 }
 
 Node::Node(Node& other){
-	nodeSize = other.nodeSize;
-	parent = other.parent;
-	rightSibling = other.rightSibling;
-	leftSibling = other.leftSibling;
+	
 }
 
 Node::~Node(){
-	delete parent;
-	delete rightSibling;
-	delete leftSibling;
+
 }
 
+/*
+ *Insertion to general Node. All real implementation is taken care of
+ *in the subclasses InnerNode and LeafNode
+ */
 void* Node::insert(int key, std::string value){
  	return nullptr;
 }
 
+/*
+ *search in general Node. All real implementation is taken care of
+ *in the subclasses InnerNode and LeafNode
+ */
 std::string Node::find(int key){
 	return "";
 }
 
+/*
+ *General printNode. All real implementation is taken care of
+ *in the subclasses InnerNode and LeafNode
+ */
 void Node::printNode() const{
 	
 }
 
+/*
+ *General removal. All real implementation is taken care of
+ *in the subclasses InnerNode and LeafNode
+ */
 void Node::remove(int key){return;}
 
+/*
+ *General key lookup. All real implementation is taken care of
+ *in the subclasses InnerNode and LeafNode
+ */
 int Node::getKey() const{return 0;}
 
 //-----------------------------------
@@ -49,6 +74,13 @@ InnerNode::InnerNode(int n) : Node(n){
 	extra = nullptr;
 }
 
+/*
+ *Inserts the key, value pair to the B+Tree
+ *Values are stored in leaf nodes, so the InnerNode searches for the correct node
+ *to store the value.
+ *
+ *Returns a pointer to the root of the B+tree
+ */
 void* InnerNode::insert(int key, std::string value){
 	int i;
 	for(i = 0; i < keyPointerIndex.size(); i++){
@@ -65,6 +97,10 @@ void* InnerNode::insert(int key, std::string value){
 	return ((Node*)nextNode)->insert(key, value);
 }
 
+/*
+ *Returns a pointer to the leafNode that either contains the specified key, or would hold
+ *the key after it was inserted to the Tree
+ */
 void* InnerNode::findLeaf(int key){
 	int i;
 	for(i = 0; i < keyPointerIndex.size(); i++){
@@ -105,6 +141,12 @@ bool InnerNode::isFull() const{
 	return (int)keyPointerIndex.size() == nodeSize;
 }
 
+/*
+ *If a child node has too many values inserted, it will split. The new Node created will then need to be
+ *added to its parent.
+ *Inserts the search key and Node pointer to the new child in the keyPointerIndex and returns the root
+ *of the B+tree
+ */
 void* InnerNode::insertFromChild(int key, void* child){
 	//newly created root node. First the left-most child is added to extra, 
 	//all others will be added to the index vector
@@ -140,7 +182,15 @@ void* InnerNode::insertFromChild(int key, void* child){
 	return parent;
 }
 
-
+/*
+ *Splits the Node into two 
+ *Nodes can only contain maximum nodeSize number of keys. If an insertion
+ *would cause this to be exceeded, the Node must be split
+ *ceiling of (n+1)/2 keys will remain in the original Node, rest will be in new NOde
+ *After splitting, reference pointer will be inserted in parent
+ *If there is no parent (ie we are splitting the root) create a new root Node and return
+ *pointer to the parent
+ */
 void* InnerNode::split(){
 	void* temp = rightSibling;
 	rightSibling = new InnerNode(nodeSize);
@@ -180,17 +230,18 @@ void* InnerNode::split(){
 	return parent;
 }
 
+/*
+ *Searches through the B+tree to retrieve the value corresponding to the specified key
+ *if the key is not found within the tree, returns the empty string ""
+ */
 std::string InnerNode::find(int key){
 	int i;
-	std::cout<<"searching for " << key << std::endl;
 	if(keyPointerIndex.empty()){
 		if(extra != nullptr){
-			std::cout << "The root node is empty\n";
 			return ((Node*)extra)->find(key);
 		}
 		return ""; //you searched in an empty tree, dumbass!
 	}
-	std::cout <<"Trying to look at the first key in the root\n";
 	if(key < keyPointerIndex.at(0).first){
 		return ((Node*)extra)->find(key);
 	}
@@ -202,13 +253,13 @@ std::string InnerNode::find(int key){
 	return ((Node*)nextNode)->find(key);
 }
 
+/*
+ *Prints the contents of the Node to standard output
+ */
 void InnerNode::printNode() const{
-
 	std::cout << "[";
 	if(keyPointerIndex.size() > 0){
-		std::cout << "Before attempt to print first\n";
 		std::cout << keyPointerIndex.at(0).first;
-		std::cout << "After attempt to print first\n";
 		for(int i = 1; i < keyPointerIndex.size(); i++){
 			std::cout << ", " << keyPointerIndex.at(i).first;
 		}
@@ -216,7 +267,11 @@ void InnerNode::printNode() const{
 	std::cout << "] ";
 }
 
-
+/*
+ *Removes the key and its corresponding value from the B+Tree
+ *If this causes a Node or Nodes to be less than half full, keys and reference pointers may
+ *need to be rearranged to maintain proper tree structure
+ */
 void InnerNode::remove(int key){
 	int i;
 
@@ -231,6 +286,9 @@ void InnerNode::remove(int key){
 	return ((Node*)nextNode)->remove(key);
 }
 
+/*
+ *updates the keys to match a modified child node
+ */
 void InnerNode::updateChildKey(int old, int newKey){
 	if(old < keyPointerIndex.at(0).first){
 		return;
@@ -244,9 +302,11 @@ void InnerNode::updateChildKey(int old, int newKey){
 	}
 }
 
+/*
+ *Removes the references to the deleted child Node from the InnerNode
+ */
 void* InnerNode::removeLeftChild(void* deadChild){
 	int i;
-	std::cout << "Size of the vector is " << keyPointerIndex.size() << std::endl;
 	if((Node*)extra == (Node*)deadChild){
 		i=0;
 		extra = keyPointerIndex.at(0).second;
@@ -260,11 +320,7 @@ void* InnerNode::removeLeftChild(void* deadChild){
 	for(int j=i; j < keyPointerIndex.size() - 1; j++){
 		keyPointerIndex.at(j).second = keyPointerIndex.at(j+1).second;
 	}
-	keyPointerIndex.pop_back();
-
-	std::cout<< ((Node*)extra)->find(2) << std::endl;
-
-	std::cout << "after shifting pointers and pop_back, size of the vector is " << keyPointerIndex.size() << std::endl;
+	keyPointerIndex.pop_back(); 
 
 	//need to update corresponding keys
 	for(int j = i; j <keyPointerIndex.size(); j++){
@@ -278,6 +334,9 @@ void* InnerNode::removeLeftChild(void* deadChild){
 	}
 }
 
+/*
+ *Returns the first key of the Node for indexing
+ */
 int InnerNode::getKey() const{
 	return keyPointerIndex.at(0).first;
 }
@@ -289,6 +348,12 @@ LeafNode::LeafNode(int n) : Node(n){
 
 }
 
+/*
+ *Inserts the key, value pair to the leaf of the B+Tree
+ *Duplicates are forbidden in the B+tree, so if they key already exists in the tree, insertion will fail
+ *Splits the node if insertion would cause it to be overfull
+ *
+ */
 void* LeafNode::insert(int key, std::string value){
 	std::vector< std::pair<int, std::string> >::iterator insertionPoint = keyValueIndex.begin();
 
@@ -303,7 +368,7 @@ void* LeafNode::insert(int key, std::string value){
 
 	//check if the key already exists, if so, terminate insertion
 	if( (*insertionPoint).first == key){
-		return this;
+		return parent;
 	}
 
 	//Need to check if split is needed after insertion
@@ -321,6 +386,9 @@ void* LeafNode::insert(int key, std::string value){
 
 }
 
+/*
+ *Prints the keys of the Node to standard output
+ */
 void LeafNode::printNode() const{
 	std::cout << "[";
 	if(keyValueIndex.size() > 0){
@@ -332,6 +400,15 @@ void LeafNode::printNode() const{
 	std::cout << "] ";
 }
 
+/*
+ *Splits the Node into two 
+ *Nodes can only contain maximum nodeSize number of keys. If an insertion
+ *would cause this to be exceeded, the Node must be split
+ *ceiling of (n+1)/2 keys will remain in the original Node, rest will be in new NOde
+ *After splitting, reference pointer will be inserted in parent
+ *If there is no parent (ie we are splitting the root) create a new root Node and return
+ *pointer to the parent
+ */
 void* LeafNode::split(){
 	void* temp = rightSibling;
 	rightSibling = new LeafNode(nodeSize);
@@ -373,6 +450,10 @@ void* LeafNode::split(){
 
 }
 
+/*
+ *Returns the string value corresonding with key
+ *If key is not in the tree, returns the empty string ""
+ */
 std::string LeafNode::find(int key){
 	for(int i = 0; i < keyValueIndex.size(); i++){
 		if(keyValueIndex.at(i).first == key){
@@ -382,17 +463,21 @@ std::string LeafNode::find(int key){
 	return "";
 }
 
+/*
+ *Removes the key from the leaf Node. If this would cause the node to be less than half full
+ *will rearrange keys and values from sibling nodes to maintain structure of the tree
+ */
 void LeafNode::remove(int key){
-	bool flag = false;
+	bool found = false;
 	auto iterator = keyValueIndex.begin();
-	while(iterator != keyValueIndex.end() &&!flag){
+	while(iterator != keyValueIndex.end() &&!found){
 		if(iterator->first == key){
-			flag = true;
+			found = true;
 			keyValueIndex.erase(iterator);
 		}
 		iterator++;
 	}
-	if(!flag){ //key was not found
+	if(!found){ //key was not found
 		return;
 	}
 
@@ -428,37 +513,32 @@ void LeafNode::remove(int key){
 		}
 	}
 
-	std::cout<<"Trying to coalese with left sibling\n";
 	//Case 3 -- Try to coalese with left
 	if(leftSibling != nullptr){
 		//insert all values from the left sibling into current node
-		std::cout << "moving all values from left into current\n";
 		auto iterator = ((LeafNode*)leftSibling)->keyValueIndex.begin();
 		while(iterator != ((LeafNode*)leftSibling)->keyValueIndex.end()){
 			insert(iterator->first, iterator->second);
 			iterator++;
 		}
-		printNode();
-		std::cout << "Finished copying\n";
+		
 		LeafNode* temp = (LeafNode*)leftSibling;
 		leftSibling = ((LeafNode*)leftSibling)->leftSibling; //update left sibling of current
 		if(leftSibling != nullptr){
 			((LeafNode*)leftSibling)->rightSibling = this;
 		}
-		std::cout<<"Updated leftSibling pointer. About to update parent\n";
+
 		void* updatedParent = ((InnerNode*)parent)->removeLeftChild(temp);
-		std::cout<<"parent updated\n";
 		//finally, delete leftSibling
-		//TODO: figure out why deletion doesn't work
-		//delete temp;
-		if( find(4) == ""){
-			std::cout<<"Success!\n";
-		}
-		std::cout<<"deleted leftSibling\n";
+		delete temp;
+		
 		return; //updatedParent;
 	}
 }
 
+/*
+ *Returns the first key of the Node for indexing
+ */
 int LeafNode::getKey() const{
 	return keyValueIndex.at(0).first;
 }
