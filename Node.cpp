@@ -174,8 +174,11 @@ void* InnerNode::insertFromChild(int key, void* child){
 	keyPointerIndex.insert(insertionPoint, std::pair<int, void*>(key, child));
 	//check if node has become over-full
 	if(keyPointerIndex.size() > nodeSize){
+		printNode();
+		std::cout<<"Splitting InnerNode\n";
 		return split();
 	}
+
 	if(parent == nullptr){
 		return this;
 	}
@@ -212,6 +215,7 @@ void* InnerNode::split(){
 		keyPointerIndex.pop_back(); //remove the entries we just copied over
 	}
 	//key, value pair of new node to insert to parent 
+	//ISSUE HERE (I think)
 	std::pair<int, void*> p = ((InnerNode *)rightSibling)->keyPointerIndex.at(0);
 
 	//Check if we split the root
@@ -254,9 +258,10 @@ std::string InnerNode::find(int key){
 }
 
 /*
- *Prints the contents of the Node to standard output
+ *Prints the contents of the B+Tree to standard output
  */
 void InnerNode::printNode() const{
+	//first print self to console
 	std::cout << "[";
 	if(keyPointerIndex.size() > 0){
 		std::cout << keyPointerIndex.at(0).first;
@@ -265,6 +270,17 @@ void InnerNode::printNode() const{
 		}
 	}
 	std::cout << "] ";
+
+	//have all sibling to the right print themselves
+	if(rightSibling != nullptr){
+		((InnerNode*)rightSibling)->printNode();
+	}
+
+	//if this is the left-most node in the level, tell the next level to begin printing on a new line
+	if(leftSibling == nullptr){
+		std::cout << std::endl;
+		((Node*)extra)->printNode();
+	}
 }
 
 /*
@@ -387,9 +403,10 @@ void* LeafNode::insert(int key, std::string value){
 }
 
 /*
- *Prints the keys of the Node to standard output
+ *Prints the keys of the B+Tree to standard output
  */
 void LeafNode::printNode() const{
+	//print self to console
 	std::cout << "[";
 	if(keyValueIndex.size() > 0){
 		std::cout << keyValueIndex.at(0).first;
@@ -398,6 +415,16 @@ void LeafNode::printNode() const{
 		}
 	}
 	std::cout << "] ";
+
+	//have siblings to the right print themselves
+	if(rightSibling != nullptr){
+		((LeafNode*)rightSibling)->printNode();
+	}
+
+	//if this is the first node in leaf-level, print new line to finish printing
+	if(leftSibling == nullptr){
+		std::cout << std::endl;
+	}
 }
 
 /*

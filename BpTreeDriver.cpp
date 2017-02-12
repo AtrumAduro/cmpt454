@@ -7,6 +7,16 @@
 #include "Node.h"
 #include "BpTree.h"
 
+void testPrint(){
+	void* testNode = new LeafNode(3);
+
+	for(int i = 1; i <= 10; i++){
+		testNode = ((Node*)testNode)->insert(i, "test");
+		((Node*)testNode)->printNode();
+		std::cout << "\n";
+	}
+}
+
 bool testSearchLeaf(){
 	void* testNode = new LeafNode(5);
 	for(int i = 0; i < 4; i++){
@@ -120,7 +130,10 @@ bool testDeletion(){
 int main(){
 	std::cout <<"Driver program\n";
 
-	std::cout << "Testing find() in LeafNode\n";
+	std::cout <<"Testing printing of the tree\n";
+	testPrint();
+
+	std::cout << "\nTesting find() in LeafNode\n";
 	if(testSearchLeaf()){
 		std::cout << "Find in LeafNode passes tests\n";
 	}
@@ -129,7 +142,7 @@ int main(){
 		return 1;
 	}
 
-	std::cout << "Testing find() with InnerNodes\n";
+	std::cout << "\nTesting find() with InnerNodes\n";
 	if(testSearchFull()){
 		std::cout << "Find with InnerNodes passes tests\n";
 	}
@@ -139,7 +152,7 @@ int main(){
 	}
 
 
-	std::cout << "Testing deletion\n";
+	std::cout << "\nTesting deletion\n";
 	if(testDeletion()){
 		std::cout << "deletion passes tests\n";
 	}
