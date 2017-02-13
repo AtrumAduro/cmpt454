@@ -86,13 +86,19 @@ bool testDeletion(){
 	testNode = ((Node*)testNode)->insert(9, "test");
 
 	std::cout << "Testing base case\n";
+	((Node*)testNode)->printNode();
+	std::cout << std::endl;
 	//test base case, already exists, no restructuring needed
+
 
 	((Node*)testNode)->remove(9);
 	if( ((Node*)testNode)->find(9) != ""){
 		std::cout << "Test 1 failed\n";
 		return false;
 	}
+
+	((Node*)testNode)->printNode();
+	std::cout << std::endl;
 
 	//test case 1 -- deletion requires borrowing from left sibling
 	((Node*)testNode)->remove(3);
@@ -101,6 +107,10 @@ bool testDeletion(){
 		return false;
 	}
 
+
+	((Node*)testNode)->printNode();
+	std::cout << std::endl;
+
 	//test case 2 -- deletion requires borrowing from right sibling
 	testNode = ((Node*)testNode)->insert(5, "test");
 	((Node*)testNode)->remove(1);
@@ -108,6 +118,9 @@ bool testDeletion(){
 		std::cout << "Test 3 failed\n";
 		return false;
 	}
+
+	((Node*)testNode)->printNode();
+	std::cout << std::endl;
 
 	//test case 3 -- deletion requires coalescing with left sibling
 	//Tree structure at this point SPECIAL CASE BAD EXAMPLE
@@ -121,8 +134,29 @@ bool testDeletion(){
 		std::cout << "Test 4 Failed\n"; //ruh roh
  		return false;
 	}
-	
 
+	((Node*)testNode)->printNode();
+	std::cout <<std::endl;
+
+
+	//test case 4 -- deletion requires coalescing with right sibling
+	//create new tree of structure
+	//[4]
+	//[2, 3] [4, 5]
+	void* testNode2 = new LeafNode(3);
+	testNode2 = ((Node*)testNode2)->insert(2, "hi");
+	testNode2 = ((Node*)testNode2)->insert(3, "hi");
+	testNode2 = ((Node*)testNode2)->insert(4, "hi");
+	testNode2 = ((Node*)testNode2)->insert(5, "hi");
+	((Node*)testNode2)->printNode();
+
+	//remove 3
+	((Node*)testNode2)->remove(3);
+	std::cout << "AFter deleting 3:\n";
+	((Node*)testNode2)->printNode();
+
+
+	std::cout << std::endl;
 
 	return true;
 }
@@ -130,8 +164,8 @@ bool testDeletion(){
 int main(){
 	std::cout <<"Driver program\n";
 
-	std::cout <<"Testing printing of the tree\n";
-	testPrint();
+	//std::cout <<"Testing printing of the tree\n";
+	//testPrint();
 
 	std::cout << "\nTesting find() in LeafNode\n";
 	if(testSearchLeaf()){

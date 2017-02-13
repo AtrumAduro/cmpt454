@@ -135,7 +135,11 @@ class InnerNode : public Node{
 		/*
 		 *Removes the references to the deleted child Node from the InnerNode
 		 */
-		void* removeLeftChild(void* deadChild);
+		void removeLeftChild(void* deadChild);
+
+		/*Removes the reference to the deleted child Node from the InnerNOde
+		*/
+		void removeRightChild(void* deadChild);
 
 		/*
 		 *Returns the first key of the Node for indexing
@@ -152,6 +156,7 @@ class InnerNode : public Node{
 		 *used when the parent has split and needs to inform its new children of the change
 		 */
 		virtual void setParent(void* newParent);
+
 		
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
@@ -248,5 +253,27 @@ class LeafNode : public Node{
 		 *pointer to the parent
 		 */
 		void* split();
+
+		/*
+		 *Helper function for removal
+		 *If a node becomes less than half full, it may try borrowing from its
+		 *sibling to maintain the correct structure of the tree
+		 */
+		void borrowLeft(int oldKey);
+
+		/*
+		 *Helper function for removal
+		 *If a node becomes less than half full, it may try borrowing from its
+		 *sibling to maintain the correct structure of the tree
+		 */
+		void borrowRight();
+
+		/*
+		 *If we cannot borrow from siblings, need to merge the siblings
+		 *together
+		 */
+		void* coaleseLeft();
+
+		void* coaleseRight();
 };
 #endif

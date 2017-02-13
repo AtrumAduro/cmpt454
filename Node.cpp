@@ -333,7 +333,7 @@ void InnerNode::updateChildKey(int old, int newKey){
 /*
  *Removes the references to the deleted child Node from the InnerNode
  */
-void* InnerNode::removeLeftChild(void* deadChild){
+void InnerNode::removeLeftChild(void* deadChild){
 	int i;
 	if((Node*)extra == (Node*)deadChild){
 		i=0;
@@ -344,18 +344,35 @@ void* InnerNode::removeLeftChild(void* deadChild){
 		}
 	}
 
-	//shifting the pointers
+	//shifting the pointers and updating keys as we go
 	for(int j=i; j < keyPointerIndex.size() - 1; j++){
 		keyPointerIndex.at(j).second = keyPointerIndex.at(j+1).second;
+		keyPointerIndex.at(j).first = ((Node*)keyPointerIndex.at(j).second)->getKey();
 	}
 	keyPointerIndex.pop_back(); 
 
-	//need to update corresponding keys
-	for(int j = i; j <keyPointerIndex.size(); j++){
+	//check if innerNOde is now to small AND this is not the root
+	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
+		//panic
+		//implement
+	}
+}
+
+void InnerNode::removeRightChild(void* deadChild){
+	int i;
+	//don't need to check extra ptr, because we're coalesing from right into left sibling, therefore
+	//there exists at least one sibling to the left of right
+	//search for pointer index to removes
+	for(i=0; i <keyPointerIndex.size() && keyPointerIndex.at(i).second != deadChild; i++){}
+
+	//shift pointers and update keys as we go
+	for(int j = i; j < keyPointerIndex.size() - 1; j++){
+		keyPointerIndex.at(j).second = keyPointerIndex.at(j+1).second;
 		keyPointerIndex.at(j).first = ((Node*)keyPointerIndex.at(j).second)->getKey();
 	}
+	keyPointerIndex.pop_back();
 
-	//check if innerNOde is now to small AND this is not the root
+	//check if InnerNode is now too small AND this is not the root
 	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
 		//panic
 		//implement
@@ -521,11 +538,11 @@ std::string LeafNode::find(int key){
  *Removes the key from the leaf Node. If this would cause the node to be less than half full
  *will rearrange keys and values from sibling nodes to maintain structure of the tree
  */
-void LeafNode::remove(int key){
+void LeafNode::remove(int keyToRemove){
 	bool found = false;
 	auto iterator = keyValueIndex.begin();
 	while(iterator != keyValueIndex.end() &&!found){
-		if(iterator->first == key){
+		if(iterator->first == keyToRemove){
 			found = true;
 			keyValueIndex.erase(iterator);
 		}
@@ -543,12 +560,7 @@ void LeafNode::remove(int key){
 	//Case 1 -- Try to borrow from left sibling if it exists
 	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
 		if( ((LeafNode*)leftSibling)->keyValueIndex.size()-1 > nodeSize/2){
-			int newKey = ((LeafNode*)leftSibling)->keyValueIndex.back().first;
-			std::string value = ((LeafNode*)leftSibling)->keyValueIndex.back().second;
-			insert(newKey, value);
-			((LeafNode*)leftSibling)->keyValueIndex.pop_back(); //delete value from sibling
-			//update parent key
-			((InnerNode*)parent)->updateChildKey(key, newKey);
+			borrowLeft(keyToRemove);
 			return;
 		}
 	}
@@ -556,37 +568,21 @@ void LeafNode::remove(int key){
 	//Case 2 -- Try to borrow from right sibling if it exists
 	if(rightSibling != nullptr && ((LeafNode*)rightSibling)->parent == parent){
 		if( ((LeafNode*)rightSibling)->keyValueIndex.size() - 1 > nodeSize/2){
-			int newKey = ((LeafNode*)rightSibling)->keyValueIndex.front().first;
-			std::string value = ((LeafNode*)rightSibling)->keyValueIndex.front().second;
-			insert(newKey,value);
-			//delete value from sibling
-			((LeafNode*)rightSibling)->keyValueIndex.erase(((LeafNode*)rightSibling)->keyValueIndex.begin());
-			//update parent key
-			((InnerNode*)parent)->updateChildKey(newKey, ((LeafNode*)rightSibling)->keyValueIndex.front().first);
+			borrowRight();
 			return;
 		}
 	}
 
 	//Case 3 -- Try to coalese with left
 	if(leftSibling != nullptr){
-		//insert all values from the left sibling into current node
-		auto iterator = ((LeafNode*)leftSibling)->keyValueIndex.begin();
-		while(iterator != ((LeafNode*)leftSibling)->keyValueIndex.end()){
-			insert(iterator->first, iterator->second);
-			iterator++;
-		}
-		
-		LeafNode* temp = (LeafNode*)leftSibling;
-		leftSibling = ((LeafNode*)leftSibling)->leftSibling; //update left sibling of current
-		if(leftSibling != nullptr){
-			((LeafNode*)leftSibling)->rightSibling = this;
-		}
+		coaleseLeft();
+		return;
+	}
 
-		void* updatedParent = ((InnerNode*)parent)->removeLeftChild(temp);
-		//finally, delete leftSibling
-		delete temp;
-		
-		return; //updatedParent;
+	//Case 4 -- coalese with right
+	//try telling rightSibling to coalese left
+	if(rightSibling != nullptr){
+		coaleseRight();
 	}
 }
 
@@ -606,4 +602,71 @@ void* LeafNode::getParent() const{
 
 void LeafNode::setParent(void* newParent){
 	parent = newParent;
+}
+
+void LeafNode::borrowLeft(int oldKey){
+	int newKey = ((LeafNode*)leftSibling)->keyValueIndex.back().first;
+	std::string newValue = ((LeafNode*)leftSibling)->keyValueIndex.back().second;
+	insert(newKey, newValue);
+	((LeafNode*)leftSibling)->keyValueIndex.pop_back(); //delete value from sibling
+	//update parent key
+	((InnerNode*)parent)->updateChildKey(oldKey, getKey());
+}
+
+void LeafNode::borrowRight(){
+	int newKey = ((LeafNode*)rightSibling)->keyValueIndex.front().first;
+	std::string value = ((LeafNode*)rightSibling)->keyValueIndex.front().second;
+	insert(newKey,value);
+	//delete value from sibling
+	((LeafNode*)rightSibling)->keyValueIndex.erase(((LeafNode*)rightSibling)->keyValueIndex.begin());
+	//update parent key
+	((InnerNode*)parent)->updateChildKey(((LeafNode*)rightSibling)->getKey(), ((LeafNode*)rightSibling)->keyValueIndex.front().first);	
+}
+
+void* LeafNode::coaleseLeft(){
+	void* returnValue = this;
+	//insert all values from the left sibling into current node
+	auto iterator = ((LeafNode*)leftSibling)->keyValueIndex.begin();
+	while(iterator != ((LeafNode*)leftSibling)->keyValueIndex.end()){
+		insert(iterator->first, iterator->second);
+		iterator++;
+	}
+	
+	LeafNode* temp = (LeafNode*)leftSibling;
+	leftSibling = temp->leftSibling; //update left sibling of current
+	if(leftSibling != nullptr){
+		((LeafNode*)leftSibling)->rightSibling = this;
+	}
+	((InnerNode*)parent)->removeLeftChild(temp);
+	//finally, delete leftSibling
+	delete temp;
+	//walk up the tree to return the root in case it changed
+	while(((Node*)returnValue)->getParent() != nullptr){
+		returnValue = ((Node*)returnValue)->getParent();
+	}
+	return returnValue;
+}
+
+void* LeafNode::coaleseRight(){
+	void* returnValue = this;
+
+	//insert all values from right sibling into current node
+	auto iterator = ((LeafNode*)rightSibling)->keyValueIndex.begin();
+	while(iterator != ((LeafNode*)rightSibling)->keyValueIndex.end()){
+		insert(iterator->first, iterator->second);
+		iterator++;
+	}
+
+	LeafNode* temp = (LeafNode*)rightSibling;
+	rightSibling = temp->rightSibling; //update right sibling of current
+	if(rightSibling != nullptr){
+		((LeafNode*)rightSibling)->leftSibling = this;
+	}
+	((InnerNode*)parent)->removeRightChild(temp);
+	delete temp;
+
+	while(((Node*)returnValue)->getParent() != nullptr){
+		returnValue = ((Node*)returnValue)->getParent();
+	}
+	return returnValue;
 }
