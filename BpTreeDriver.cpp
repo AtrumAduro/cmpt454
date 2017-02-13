@@ -140,52 +140,56 @@ bool testDeletion(){
  		return false;
 	}
 
+//----------------------------------------------------------------------------------
+
+
+
 	((Node*)testNode)->printNode();
 	std::cout <<std::endl;
 
 
-	//test case 4 -- deletion requires coalescing with right sibling
-	//create new tree of structure
-	//[4]
-	//[2, 3] [4, 5]
-	void* testNode2 = new LeafNode(3);
-	testNode2 = ((Node*)testNode2)->insert(2, "hi");
-	testNode2 = ((Node*)testNode2)->insert(3, "hi");
-	testNode2 = ((Node*)testNode2)->insert(4, "hi");
-	testNode2 = ((Node*)testNode2)->insert(5, "hi");
-	((Node*)testNode2)->printNode();
+	// //test case 4 -- deletion requires coalescing with right sibling
+	// //create new tree of structure
+	// //[4]
+	// //[2, 3] [4, 5]
+	// void* testNode2 = new LeafNode(3);
+	// testNode2 = ((Node*)testNode2)->insert(2, "hi");
+	// testNode2 = ((Node*)testNode2)->insert(3, "hi");
+	// testNode2 = ((Node*)testNode2)->insert(4, "hi");
+	// testNode2 = ((Node*)testNode2)->insert(5, "hi");
+	// ((Node*)testNode2)->printNode();
 
-	//remove 3
-	((Node*)testNode2)->remove(3);
-	std::cout << "AFter deleting 3:\n";
-	((Node*)testNode2)->printNode();
+	// //remove 3
+	// ((Node*)testNode2)->remove(3);
+	// std::cout << "AFter deleting 3:\n";
+	// ((Node*)testNode2)->printNode();
 
 
-	std::cout << std::endl;
+	// std::cout << std::endl;
 
-	std::cout << "Testing borrow left in InnerNodes\n";
-	void* testNode3 = new LeafNode(3);
-	for (int i = 2; i <=13; i++) {
-		testNode3 = ((Node*)testNode3)->insert(i, "mwhahaha");
-	}
-	((Node*)testNode3)->printNode();
+	// std::cout << "Testing borrow left in InnerNodes\n";
+	// void* testNode3 = new LeafNode(3);
+	// for (int i = 2; i <=13; i++) {
+	// 	testNode3 = ((Node*)testNode3)->insert(i, "mwhahaha");
+	// }
+	// ((Node*)testNode3)->printNode();
 
-	//delete 8, delete 12, delete 11
-	((Node*)testNode3)->remove(8);
-	((Node*)testNode3)->remove(12);
-	((Node*)testNode3)->remove(11);
-	((Node*)testNode3)->printNode();
+	// //delete 8, delete 12, delete 11
+	// ((Node*)testNode3)->remove(8);
+	// ((Node*)testNode3)->remove(12);
+	// ((Node*)testNode3)->remove(11);
+	// ((Node*)testNode3)->printNode();
 
-std::cout<< "\nTesting coalese left in InnerNodes\n";
+std::cout<< "\nTesting Borrow left in InnerNodes\n";
 	//Current testNode3 should look like
 	//              [6] 
 	//      [4]           [9] 
 	// [2, 3] [4, 5] [6, 7] [9, 10, 13] 
-	//to force [9] to coalese left, need to coalese its children
-	//delete 6, delete 7, to force
-	((Node*)testNode3)->remove(6);
-	((Node*)testNode3)->remove(7);
-	((Node*)testNode3)->printNode();
+	// //to force [9] to coalese left, need to coalese its children
+	// //delete 6, delete 7, to force
+	// ((Node*)testNode3)->remove(6);
+	// ((Node*)testNode3)->remove(7);
+	// ((Node*)testNode3)->printNode();
 
 	std::cout << std::endl;
 
@@ -194,17 +198,27 @@ std::cout<< "\nTesting coalese left in InnerNodes\n";
 		if(i == 8 || i == 12 || i == 11 || i==7) continue;
 
 		testNode4 = ((Node*)testNode4)->insert(i, "mwhahaha");
-		((Node*)testNode4)->printNode(); 
-		std::cout<<std::endl;
 	}
 	for(int i = -2; i <= 1; i++){
 		testNode4 = ((Node*)testNode4)->insert(i, "test");
 	}
 	((Node*)testNode4)->printNode();
-	std::cout << "When searching for 13, we get " << ((Node*)testNode4)->find(13);
+	std::cout<<std::endl;
 	// 	                           [6] 
 	//            [0, 2, 4]               [10] 
-	// [-2, -1] [0, 1] [2, 3] [4, 5] [6, 9] [10, 14] 
+	// [-2, -1] [0, 1] [2, 3] [4, 5] [6, 9] [10, 13, 14] 
+	//delete 6, 9 to force coalese
+	((Node*)testNode4)->remove(6);
+	((Node*)testNode4)->printNode();
+	std::cout<<std::endl;
+	((Node*)testNode4)->remove(9);
+	((Node*)testNode4)->printNode();
+
+	for(int i = 0; i <=3; i++){
+		((Node*)testNode4)->remove(i);
+		((Node*)testNode4)->printNode();		
+	}
+
 
 
 

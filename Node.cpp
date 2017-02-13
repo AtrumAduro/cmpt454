@@ -794,7 +794,7 @@ void* LeafNode::coaleseLeft(){
 	}
 	((InnerNode*)parent)->removeLeftChild(temp);
 	//finally, delete leftSibling
-	delete temp;
+	//delete temp;
 	//walk up the tree to return the root in case it changed
 	while(((Node*)returnValue)->getParent() != nullptr){
 		returnValue = ((Node*)returnValue)->getParent();
