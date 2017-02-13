@@ -174,8 +174,6 @@ void* InnerNode::insertFromChild(int key, void* child){
 	keyPointerIndex.insert(insertionPoint, std::pair<int, void*>(key, child));
 	//check if node has become over-full
 	if(keyPointerIndex.size() > nodeSize){
-		printNode();
-		std::cout<<"Splitting InnerNode\n";
 		return split();
 	}
 
@@ -197,7 +195,7 @@ void* InnerNode::insertFromChild(int key, void* child){
 void* InnerNode::split(){
 	void* temp = rightSibling;
 	rightSibling = new InnerNode(nodeSize);
-
+	
 	//set pointers in new Node
 	((InnerNode *)rightSibling)->leftSibling = this;
 	((InnerNode *)rightSibling)->rightSibling = temp;
@@ -210,12 +208,12 @@ void* InnerNode::split(){
 		key = keyPointerIndex.at(i).first; //extract key
 		child = keyPointerIndex.at(i).second; //extract sting value
 		((InnerNode *)rightSibling)->insertFromChild(key, child);
+		
 	}
 	for(int i = (nodeSize + 2)/2; i < nodeSize +1; i++){
 		keyPointerIndex.pop_back(); //remove the entries we just copied over
 	}
-	//key, value pair of new node to insert to parent 
-	//ISSUE HERE (I think)
+	//key, pointer pair of new node to insert to parent 
 	std::pair<int, void*> p = ((InnerNode *)rightSibling)->keyPointerIndex.at(0);
 
 	//Check if we split the root
@@ -225,7 +223,7 @@ void* InnerNode::split(){
 		//insert original Node pointer to parent
 		((InnerNode *)parent)->insertFromChild(keyPointerIndex.at(0).first, this); 
 		//insert new node pointer to parent
-		((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
+		((InnerNode *)parent)->insertFromChild( ((Node*)rightSibling)->getKey(), rightSibling);
 		return parent;
 	}
 
@@ -351,10 +349,13 @@ void* InnerNode::removeLeftChild(void* deadChild){
 }
 
 /*
- *Returns the first key of the Node for indexing
+ *Returns the indexing key for the Node
+ *When building the nodes for higher levels, they need to reference the smallest possible key
+ *that may be searched in this branch. This key will be the first key in the left-most leafNode
+ *of the branch
  */
 int InnerNode::getKey() const{
-	return keyPointerIndex.at(0).first;
+	return ((Node*)extra)->getKey();
 }
 
 //-----------------------------------
@@ -467,12 +468,12 @@ void* LeafNode::split(){
 		//insert original Node pointer to parent
 		((InnerNode *)parent)->insertFromChild(keyValueIndex.at(0).first, this); 
 		//insert new node pointer to parent
-		((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
+		return ((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
 		return parent;
 	}
 
 	//didn't create new parent, need to add new NOde to parent index
-	((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
+	return ((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
 	return parent;
 
 }
