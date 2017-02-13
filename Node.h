@@ -52,6 +52,11 @@ class Node{
 		 *in the subclasses InnerNode and LeafNode
 		 */
 		virtual int getKey() const;
+
+		/*
+		 *returns a pointer to the parent of the node
+		 */
+		virtual void* getParent() const;
 		
 	protected:
 		int nodeSize; //max number of keys in the node
@@ -130,6 +135,11 @@ class InnerNode : public Node{
 		 *Returns the first key of the Node for indexing
 		 */
 		int getKey() const;
+
+		/*
+		 *returns a pointer to the parent of the node
+		 */
+		void* getParent() const;
 		
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
@@ -201,6 +211,10 @@ class LeafNode : public Node{
 		 */
 		int getKey() const;
 
+		/*
+		 *returns a pointer to the parent of the node
+		 */
+		void* getParent() const;
 
 	private:
 		//list of integer keys and their corresponding string values

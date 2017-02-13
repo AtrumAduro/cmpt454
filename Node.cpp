@@ -67,6 +67,14 @@ void Node::remove(int key){return;}
  */
 int Node::getKey() const{return 0;}
 
+
+/*
+ *returns a pointer to the parent of the node
+ */
+void* Node::getParent() const{
+	return parent;
+}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
@@ -358,6 +366,13 @@ int InnerNode::getKey() const{
 	return ((Node*)extra)->getKey();
 }
 
+/*
+ *returns a pointer to the parent of the node
+ */
+void* InnerNode::getParent() const{
+	return parent;
+}
+
 //-----------------------------------
 //LeafNode implementation
 //-----------------------------------
@@ -373,10 +388,15 @@ LeafNode::LeafNode(int n) : Node(n){
  */
 void* LeafNode::insert(int key, std::string value){
 	std::vector< std::pair<int, std::string> >::iterator insertionPoint = keyValueIndex.begin();
-
+	//set returnValue to be the root of the tree
+	//this is overridden only in the case of splitting a node, which may cause there to be a new root
+	void* returnValue = this;
+	while (((Node*)returnValue)->getParent() != nullptr){
+		returnValue = ((Node*)returnValue)->getParent();
+	}
 	if(keyValueIndex.size() == 0){
 		keyValueIndex.push_back(std::pair<int, std::string>(key, value));
-		return this;
+		return returnValue;
 	}
 
 	while((*insertionPoint).first < key && insertionPoint != keyValueIndex.end()){
@@ -385,22 +405,18 @@ void* LeafNode::insert(int key, std::string value){
 
 	//check if the key already exists, if so, terminate insertion
 	if( (*insertionPoint).first == key){
-		return parent;
+		return returnValue;
 	}
 
 	//Need to check if split is needed after insertion
-
 	keyValueIndex.insert(insertionPoint, std::pair<int, std::string>(key, value));
-
 	if(keyValueIndex.size() > nodeSize){
-		return split();
+		split();
 	}
-
-	if(parent == nullptr){
-		return this;
+	while (((Node*)returnValue)->getParent() != nullptr){
+		returnValue = ((Node*)returnValue)->getParent();
 	}
-	return parent;
-
+	return returnValue;
 }
 
 /*
@@ -569,4 +585,11 @@ void LeafNode::remove(int key){
  */
 int LeafNode::getKey() const{
 	return keyValueIndex.at(0).first;
+}
+
+/*
+ *returns a pointer to the parent of the node
+ */
+void* LeafNode::getParent() const{
+	return parent;
 }
