@@ -353,7 +353,7 @@ void InnerNode::removeLeftChild(void* deadChild){
 		keyPointerIndex.at(j).first = ((Node*)keyPointerIndex.at(j).second)->getKey();
 	}
 	keyPointerIndex.pop_back(); 
-
+	printNode();
 	//check if innerNOde is now to small AND this is not the root
 	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
 		//modularise with restructure();
@@ -406,8 +406,7 @@ void InnerNode::borrowLeft(){
 	((Node*)extra)->setParent(this);
 	((InnerNode*)parent)->updateChildKey(keyToUpdate, getKey());
 
-	std::cout<<"In borrow Node\n";
-	((Node*)parent)->printNode();
+
 }
 
 void InnerNode::borrowRight(){
@@ -719,7 +718,6 @@ void LeafNode::remove(int keyToRemove){
 			return;
 		}
 	}
-
 	//Case 2 -- Try to borrow from right sibling if it exists
 	if(rightSibling != nullptr && ((LeafNode*)rightSibling)->parent == parent){
 		if( ((LeafNode*)rightSibling)->keyValueIndex.size() - 1 > nodeSize/2){
@@ -727,13 +725,12 @@ void LeafNode::remove(int keyToRemove){
 			return;
 		}
 	}
-
 	//Case 3 -- Try to coalese with left
-	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
+	if(leftSibling != nullptr){//} && ((LeafNode*)leftSibling)->parent == parent){
+		std::cout << "Calling coaleseLeft from leaf\n";
 		coaleseLeft();
 		return;
 	}
-
 	//Case 4 -- coalese with right
 	//try telling rightSibling to coalese left
 	if(rightSibling != nullptr && ((LeafNode*)rightSibling)->parent == parent){
@@ -786,12 +783,18 @@ void* LeafNode::coaleseLeft(){
 		insert(iterator->first, iterator->second);
 		iterator++;
 	}
-	
+
 	LeafNode* temp = (LeafNode*)leftSibling;
 	leftSibling = temp->leftSibling; //update left sibling of current
+
+	temp->leftSibling = nullptr;//completely detach the temporary node from the tree
+	temp->rightSibling = nullptr;
+	temp->parent=nullptr;
+
 	if(leftSibling != nullptr){
 		((LeafNode*)leftSibling)->rightSibling = this;
 	}
+
 	((InnerNode*)parent)->removeLeftChild(temp);
 	//finally, delete leftSibling
 	//delete temp;

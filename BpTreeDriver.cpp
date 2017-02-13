@@ -192,6 +192,7 @@ std::cout<< "\nTesting Borrow left in InnerNodes\n";
 	// ((Node*)testNode3)->printNode();
 
 	std::cout << std::endl;
+	std::cout<< "Problems start here\n\n";
 
 	void* testNode4 = new LeafNode(3);
 	for (int i = 2; i <=14; i++) {
@@ -208,15 +209,19 @@ std::cout<< "\nTesting Borrow left in InnerNodes\n";
 	//            [0, 2, 4]               [10] 
 	// [-2, -1] [0, 1] [2, 3] [4, 5] [6, 9] [10, 13, 14] 
 	//delete 6, 9 to force coalese
+	std::cout << "Removing 6\n";
 	((Node*)testNode4)->remove(6);
 	((Node*)testNode4)->printNode();
 	std::cout<<std::endl;
+	std::cout << "Removing 9\n";
 	((Node*)testNode4)->remove(9);
 	((Node*)testNode4)->printNode();
 
 	for(int i = 0; i <=3; i++){
+		std::cout << "removing " << i << "\n";
 		((Node*)testNode4)->remove(i);
-		((Node*)testNode4)->printNode();		
+		((Node*)testNode4)->printNode();
+		std::cout<<"\n";		
 	}
 
 
