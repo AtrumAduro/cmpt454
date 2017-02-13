@@ -57,6 +57,12 @@ class Node{
 		 *returns a pointer to the parent of the node
 		 */
 		virtual void* getParent() const;
+
+		/*
+		 *Updates the parent pointer of the node
+		 *used when the parent has split and needs to inform its new children of the change
+		 */
+		virtual void setParent(void* newParent);
 		
 	protected:
 		int nodeSize; //max number of keys in the node
@@ -140,6 +146,12 @@ class InnerNode : public Node{
 		 *returns a pointer to the parent of the node
 		 */
 		void* getParent() const;
+
+		/*
+		 *Updates the parent pointer of the node
+		 *used when the parent has split and needs to inform its new children of the change
+		 */
+		virtual void setParent(void* newParent);
 		
 	private:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
@@ -215,6 +227,12 @@ class LeafNode : public Node{
 		 *returns a pointer to the parent of the node
 		 */
 		void* getParent() const;
+
+		/*
+		 *Updates the parent pointer of the node
+		 *used when the parent has split and needs to inform its new children of the change
+		 */
+		virtual void setParent(void* newParent);
 
 	private:
 		//list of integer keys and their corresponding string values

@@ -75,12 +75,18 @@ void* Node::getParent() const{
 	return parent;
 }
 
+void Node::setParent(void* newParent){
+
+}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
 InnerNode::InnerNode(int n) : Node(n){
 	extra = nullptr;
 }
+
+
 
 /*
  *Inserts the key, value pair to the B+Tree
@@ -216,7 +222,7 @@ void* InnerNode::split(){
 		key = keyPointerIndex.at(i).first; //extract key
 		child = keyPointerIndex.at(i).second; //extract sting value
 		((InnerNode *)rightSibling)->insertFromChild(key, child);
-		
+		((Node*)child)->setParent(rightSibling);
 	}
 	for(int i = (nodeSize + 2)/2; i < nodeSize +1; i++){
 		keyPointerIndex.pop_back(); //remove the entries we just copied over
@@ -371,6 +377,10 @@ int InnerNode::getKey() const{
  */
 void* InnerNode::getParent() const{
 	return parent;
+}
+
+void InnerNode::setParent(void* newParent){
+	parent = newParent;
 }
 
 //-----------------------------------
@@ -592,4 +602,8 @@ int LeafNode::getKey() const{
  */
 void* LeafNode::getParent() const{
 	return parent;
+}
+
+void LeafNode::setParent(void* newParent){
+	parent = newParent;
 }
