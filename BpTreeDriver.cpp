@@ -10,7 +10,12 @@
 void testPrint(){
 	void* testNode = new LeafNode(3);
 
-	for(int i = 1; i <= 30; i++){
+	for(int i = 5; i <= 8; i++){
+		testNode = ((Node*)testNode)->insert(i, "test");
+		((Node*)testNode)->printNode();
+		std::cout << "\n";
+	}
+	for(int i = 1; i <= 4; i++){
 		testNode = ((Node*)testNode)->insert(i, "test");
 		((Node*)testNode)->printNode();
 		std::cout << "\n";
@@ -158,14 +163,59 @@ bool testDeletion(){
 
 	std::cout << std::endl;
 
+	std::cout << "Testing borrow left in InnerNodes\n";
+	void* testNode3 = new LeafNode(3);
+	for (int i = 2; i <=13; i++) {
+		testNode3 = ((Node*)testNode3)->insert(i, "mwhahaha");
+	}
+	((Node*)testNode3)->printNode();
+
+	//delete 8, delete 12, delete 11
+	((Node*)testNode3)->remove(8);
+	((Node*)testNode3)->remove(12);
+	((Node*)testNode3)->remove(11);
+	((Node*)testNode3)->printNode();
+
+std::cout<< "\nTesting coalese left in InnerNodes\n";
+	//Current testNode3 should look like
+	//              [6] 
+	//      [4]           [9] 
+	// [2, 3] [4, 5] [6, 7] [9, 10, 13] 
+	//to force [9] to coalese left, need to coalese its children
+	//delete 6, delete 7, to force
+	((Node*)testNode3)->remove(6);
+	((Node*)testNode3)->remove(7);
+	((Node*)testNode3)->printNode();
+
+	std::cout << std::endl;
+
+	void* testNode4 = new LeafNode(3);
+	for (int i = 2; i <=14; i++) {
+		if(i == 8 || i == 12 || i == 11 || i==7) continue;
+
+		testNode4 = ((Node*)testNode4)->insert(i, "mwhahaha");
+		((Node*)testNode4)->printNode(); 
+		std::cout<<std::endl;
+	}
+	for(int i = -2; i <= 1; i++){
+		testNode4 = ((Node*)testNode4)->insert(i, "test");
+	}
+	((Node*)testNode4)->printNode();
+	std::cout << "When searching for 13, we get " << ((Node*)testNode4)->find(13);
+	// 	                           [6] 
+	//            [0, 2, 4]               [10] 
+	// [-2, -1] [0, 1] [2, 3] [4, 5] [6, 9] [10, 14] 
+
+
+
 	return true;
 }
 
 int main(){
 	std::cout <<"Driver program\n";
 
-	//std::cout <<"Testing printing of the tree\n";
-	//testPrint();
+	std::cout <<"Testing printing of the tree\n";
+	testPrint();
 
 	std::cout << "\nTesting find() in LeafNode\n";
 	if(testSearchLeaf()){

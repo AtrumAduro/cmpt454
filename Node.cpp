@@ -86,6 +86,9 @@ InnerNode::InnerNode(int n) : Node(n){
 	extra = nullptr;
 }
 
+InnerNode::~InnerNode(){
+
+}
 
 
 /*
@@ -353,9 +356,135 @@ void InnerNode::removeLeftChild(void* deadChild){
 
 	//check if innerNOde is now to small AND this is not the root
 	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
-		//panic
-		//implement
+		//modularise with restructure();
+		//Case 1 -- try to borrow from left
+		if(leftSibling != nullptr && ((InnerNode*)leftSibling)->parent == parent){
+			//InnerNodes can contain one less key than leaves, because of the extra pointer that does not have 
+			//an explicitly corresponding key
+			if(((InnerNode*)leftSibling)->keyPointerIndex.size()-1 >= nodeSize/2 ){
+				borrowLeft();
+				return;
+			}
+		}
+		//Case 2 -- try to borrow from right
+		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
+			if( ((InnerNode*)rightSibling)->keyPointerIndex.size() - 1 >= nodeSize/2){
+				borrowRight();
+				return;
+			}
+		}
+		//Case 3 -- try to coalese with left
+		if(leftSibling != nullptr && ((InnerNode*)leftSibling)->parent == parent){
+			coaleseLeft();
+			return;
+		}
+		//case 4 -- try to coalese with right
+		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
+			coaleseRight();
+		}
 	}
+}
+
+void InnerNode::borrowLeft(){
+	auto iterator = ((InnerNode*)parent)->keyPointerIndex.begin();
+	int keyToUpdate = iterator->first;
+	iterator++;
+	while (iterator != ((InnerNode*)parent)->keyPointerIndex.end()){
+		if(iterator->first >= getKey()){
+			keyToUpdate = iterator->first;
+			break;
+		}
+	}
+
+	//copy extra into front of the IndexPointer vector
+	keyPointerIndex.insert(keyPointerIndex.begin(), std::pair<int, void*>(((Node*)extra)->getKey(), extra));
+	//overwrite extra with right-most pointer from sibling
+	extra = ((InnerNode*)leftSibling)->keyPointerIndex.back().second;
+	//remove key, pointer pair from the sibling
+	((InnerNode*)leftSibling)->keyPointerIndex.pop_back();
+	//Luke, i am your father
+	((Node*)extra)->setParent(this);
+	((InnerNode*)parent)->updateChildKey(keyToUpdate, getKey());
+
+	std::cout<<"In borrow Node\n";
+	((Node*)parent)->printNode();
+}
+
+void InnerNode::borrowRight(){
+	//copy extra pointer and corresponding key from right sibling
+	void* newPointer = ((InnerNode*)rightSibling)->extra;
+	keyPointerIndex.push_back( std::pair<int, void*>(((Node*)newPointer)->getKey(), newPointer) );
+
+	//have right sibling shift all key, pointer pairs left
+	((InnerNode*)rightSibling)->shiftPointersLeft();
+	((InnerNode*)keyPointerIndex.back().second)->setParent(this);
+}
+
+void InnerNode::coaleseLeft(){
+	//copy extra from this node into the vector
+	insertFromChild( ((Node*)extra)->getKey(), extra);
+	//begin copying in the left vector contents
+	auto iterator = ((InnerNode*)leftSibling)->keyPointerIndex.begin();
+	while (iterator != ((InnerNode*)leftSibling)->keyPointerIndex.end()){
+		insertFromChild(iterator->first, iterator->second);
+		iterator++;
+	}
+	//copy over left sibling's extra pointer
+	extra = ((InnerNode*)leftSibling)->extra;
+	//fix sibling pointers
+	InnerNode* temp = (InnerNode*)leftSibling;
+	leftSibling = temp->leftSibling;
+	if(leftSibling != nullptr){
+		((InnerNode*)leftSibling)->rightSibling = this;
+	}
+	//update parent and delete old sibling
+	((InnerNode*)parent)->removeLeftChild(temp);
+	delete temp;
+	//fix parent pointers of new children
+	((Node*)extra)->setParent(this);
+	for(int i = 0; i < keyPointerIndex.size(); i++){
+		((Node*)keyPointerIndex.at(i).second)->setParent(this);
+	}
+
+}
+
+void InnerNode::coaleseRight(){
+	//insert all values from right sibling into current node
+	//start with the extra pointer
+	void* firstElement = ((InnerNode*)rightSibling)->extra;
+	insertFromChild( ((InnerNode*)firstElement)->getKey(), firstElement);
+	//copy everything from the vector
+	auto iterator = ((InnerNode*)rightSibling)->keyPointerIndex.begin();
+	while (iterator != ((InnerNode*)rightSibling)->keyPointerIndex.end()){
+		insertFromChild(iterator->first, iterator->second);
+		iterator++;
+	}
+	//update parent pointers of the children
+	for(int i = 0; i < keyPointerIndex.size(); i++){
+		((Node*)keyPointerIndex.at(i).second)->setParent(this);
+	}
+
+	//fix sibling pointers
+	InnerNode* temp = (InnerNode*)rightSibling;
+	rightSibling = temp->rightSibling;
+	if(rightSibling != nullptr){
+		((InnerNode*)rightSibling)->leftSibling = this;
+	}
+	//remove temp from parent and delete temp
+	((InnerNode*)parent)->removeRightChild(temp);
+	delete temp;
+}
+
+void InnerNode::shiftPointersLeft(){
+	//overwrite extra
+	extra = keyPointerIndex.at(0).second;
+	//shift pointers left
+	for(int i = 0; i <keyPointerIndex.size() - 1; i++){
+		keyPointerIndex.at(i) = keyPointerIndex.at(i+1);
+		keyPointerIndex.at(i).first = ((Node*)keyPointerIndex.at(i).second)->getKey();
+	}
+	//remove last element
+	keyPointerIndex.pop_back();
 }
 
 void InnerNode::removeRightChild(void* deadChild){
@@ -372,10 +501,34 @@ void InnerNode::removeRightChild(void* deadChild){
 	}
 	keyPointerIndex.pop_back();
 
-	//check if InnerNode is now too small AND this is not the root
+	//check if innerNOde is now to small AND this is not the root
 	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
-		//panic
-		//implement
+		//modularise with restructure();
+		//Case 1 -- try to borrow from left
+		if(leftSibling != nullptr && ((InnerNode*)leftSibling)->parent == parent){
+			//InnerNodes can contain one less key than leaves, because of the extra pointer that does not have 
+			//an explicitly corresponding key
+			if(((InnerNode*)leftSibling)->keyPointerIndex.size()-1 >= nodeSize/2 ){
+				borrowLeft();
+				return;
+			}
+		}
+		//Case 2 -- try to borrow from right
+		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
+			if( ((InnerNode*)rightSibling)->keyPointerIndex.size() - 1 >= nodeSize/2){
+				borrowRight();
+				return;
+			}
+		}
+		//Case 3 -- try to coalese with left
+		if(leftSibling != nullptr && ((InnerNode*)leftSibling)->parent == parent){
+			coaleseLeft();
+			return;
+		}
+		//case 4 -- try to coalese with right
+		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
+			coaleseRight();
+		}
 	}
 }
 
@@ -414,6 +567,7 @@ LeafNode::LeafNode(int n) : Node(n){
  *
  */
 void* LeafNode::insert(int key, std::string value){
+	
 	std::vector< std::pair<int, std::string> >::iterator insertionPoint = keyValueIndex.begin();
 	//set returnValue to be the root of the tree
 	//this is overridden only in the case of splitting a node, which may cause there to be a new root
@@ -421,6 +575,7 @@ void* LeafNode::insert(int key, std::string value){
 	while (((Node*)returnValue)->getParent() != nullptr){
 		returnValue = ((Node*)returnValue)->getParent();
 	}
+
 	if(keyValueIndex.size() == 0){
 		keyValueIndex.push_back(std::pair<int, std::string>(key, value));
 		return returnValue;
@@ -574,14 +729,14 @@ void LeafNode::remove(int keyToRemove){
 	}
 
 	//Case 3 -- Try to coalese with left
-	if(leftSibling != nullptr){
+	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
 		coaleseLeft();
 		return;
 	}
 
 	//Case 4 -- coalese with right
 	//try telling rightSibling to coalese left
-	if(rightSibling != nullptr){
+	if(rightSibling != nullptr && ((LeafNode*)rightSibling)->parent == parent){
 		coaleseRight();
 	}
 }

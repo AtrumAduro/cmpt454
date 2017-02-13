@@ -182,6 +182,35 @@ class InnerNode : public Node{
 		 */
 		void* findLeaf(int key);
 
+		/*
+		 *Helper function for removal
+		 *If a node becomes less than half full, it may try borrowing from its
+		 *sibling to maintain the correct structure of the tree
+		 */
+		void borrowLeft();
+
+		/*
+		 *Helper function for removal
+		 *If a node becomes less than half full, it may try borrowing from its
+		 *sibling to maintain the correct structure of the tree
+		 */
+		void borrowRight();
+
+		/*
+		 *If we cannot borrow from siblings, need to merge the siblings
+		 *together
+		 */
+		void coaleseLeft();
+
+		void coaleseRight();
+
+		/*
+		 *Called when borrowing key from right sibling
+		 *after the key, pointer has been copied, need to shift everything
+		 *down
+		 */
+		void shiftPointersLeft();
+
 
 };
 
