@@ -10,7 +10,7 @@
 void testPrint(){
 	void* testNode = new LeafNode(3);
 
-	for(int i = 1; i <= 11; i++){
+	for(int i = 1; i <= 12; i++){
 		testNode = ((Node*)testNode)->insert(i, "test");
 		((Node*)testNode)->printNode();
 		std::cout << "\n";
