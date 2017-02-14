@@ -144,8 +144,8 @@ bool testDeletion(){
 
 
 
-	((Node*)testNode)->printNode();
-	std::cout <<std::endl;
+	// ((Node*)testNode)->printNode();
+	// std::cout <<std::endl;
 
 
 	// //test case 4 -- deletion requires coalescing with right sibling
@@ -180,7 +180,7 @@ bool testDeletion(){
 	// ((Node*)testNode3)->remove(11);
 	// ((Node*)testNode3)->printNode();
 
-std::cout<< "\nTesting Borrow left in InnerNodes\n";
+//std::cout<< "\nTesting Borrow left in InnerNodes\n";
 	//Current testNode3 should look like
 	//              [6] 
 	//      [4]           [9] 
