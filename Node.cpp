@@ -710,6 +710,7 @@ void LeafNode::remove(int keyToRemove){
 		return;
 	}
 
+
 	//The node is less than half full
 	//Case 1 -- Try to borrow from left sibling if it exists
 	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
@@ -772,7 +773,8 @@ void LeafNode::borrowRight(){
 	//delete value from sibling
 	((LeafNode*)rightSibling)->keyValueIndex.erase(((LeafNode*)rightSibling)->keyValueIndex.begin());
 	//update parent key
-	((InnerNode*)parent)->updateChildKey(((LeafNode*)rightSibling)->getKey(), ((LeafNode*)rightSibling)->keyValueIndex.front().first);	
+	// the old value we are replacing is now the right most key in the leaf --> keyValueIndex.back().first
+	((InnerNode*)parent)->updateChildKey(keyValueIndex.back().first, ((LeafNode*)rightSibling)->keyValueIndex.front().first);	
 }
 
 void* LeafNode::coaleseLeft(){
