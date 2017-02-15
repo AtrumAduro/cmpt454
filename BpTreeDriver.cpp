@@ -261,8 +261,57 @@ void newDeletion(){
 
 	((Node*)testNode)->remove(4);
 	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(5);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(0);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(1);
+	((Node*)testNode)->printNode();
 	std::cout<<std::endl;	
 
+	((Node*)testNode)->remove(3);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(9);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(2);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(6);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(15);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(14);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	for(int i = 0; i < 3; i++){
+		testNode = ((Node*)testNode)->insert(i, ""+i);
+	}
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(2);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(1);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
 }
 
 
@@ -270,7 +319,7 @@ int main(){
 	std::cout <<"Driver program\n";
 
 	newDeletion();
-	testDeletion();
+	//testDeletion();
 	// std::cout <<"Testing printing of the tree\n";
 	// testPrint();
 

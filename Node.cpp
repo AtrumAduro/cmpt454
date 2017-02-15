@@ -100,6 +100,10 @@ InnerNode::~InnerNode(){
  */
 void* InnerNode::insert(int key, std::string value){
 	int i;
+	//check that the vector isn't empty before proceeding
+	if(keyPointerIndex.empty()){
+		return ((Node*)extra)->insert(key, value);
+	}
 	for(i = 0; i < keyPointerIndex.size(); i++){
 		if(key < keyPointerIndex.at(i).first){
 			break;
@@ -310,7 +314,11 @@ void InnerNode::printNode() const{
  *need to be rearranged to maintain proper tree structure
  */
 void InnerNode::remove(int key){
-	std::cout <<"Looking in node [";
+	if(keyPointerIndex.empty()){
+		((Node*)extra)->remove(key);
+		return;
+	}
+	std::cout <<"Looking for " << key << " in node [";
 	for(int i = 0; i < keyPointerIndex.size(); i++){
 		std::cout<< keyPointerIndex.at(i).first << " ";
 	}
