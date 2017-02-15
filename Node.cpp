@@ -79,6 +79,10 @@ void Node::setParent(void* newParent){
 
 }
 
+void Node::printValues(){
+
+}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
@@ -581,6 +585,11 @@ void InnerNode::setParent(void* newParent){
 	parent = newParent;
 }
 
+void InnerNode::printValues(){
+	//search for the left-most leafNode and begin printing values
+	((Node*)extra)->printValues();
+}
+
 //-----------------------------------
 //LeafNode implementation
 //-----------------------------------
@@ -895,4 +904,15 @@ void* LeafNode::coaleseRight(){
 		returnValue = ((Node*)returnValue)->getParent();
 	}
 	return returnValue;
+}
+
+void LeafNode::printValues(){
+	//print all values in the node on a new line
+	for(int i = 0; i < keyValueIndex.size(); i++){
+		std::cout << keyValueIndex.at(i).second << std::endl;
+	}
+	if(rightSibling != nullptr){
+		//print all values in subsequent nodes
+		((Node*)rightSibling)->printValues();
+	}
 }

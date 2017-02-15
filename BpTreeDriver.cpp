@@ -234,10 +234,11 @@ bool testDeletion(){
 void newDeletion(){
 	void* testNode = new LeafNode(3);
 	for(int i = 0; i < 20; i++){
-		testNode = ((Node*)testNode)->insert(i, "test" + i);		
+		testNode = ((Node*)testNode)->insert(i, "test");		
 	}
 	((Node*)testNode)->printNode();
 	std::cout<<"\n";
+	((Node*)testNode)->printValues();
 
 	((Node*)testNode)->remove(12);
 	((Node*)testNode)->printNode();
@@ -300,7 +301,7 @@ void newDeletion(){
 	std::cout<<std::endl;
 
 	for(int i = 0; i < 3; i++){
-		testNode = ((Node*)testNode)->insert(i, ""+i);
+		testNode = ((Node*)testNode)->insert(i, "hi");
 	}
 	((Node*)testNode)->printNode();
 	std::cout<<std::endl;
@@ -317,7 +318,7 @@ void newDeletion(){
 
 int main(){
 	std::cout <<"Driver program\n";
-
+	
 	newDeletion();
 	//testDeletion();
 	// std::cout <<"Testing printing of the tree\n";
