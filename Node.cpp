@@ -228,7 +228,9 @@ void* InnerNode::split(){
 		((Node*)child)->setParent(rightSibling);
 	}
 	for(int i = (nodeSize + 2)/2; i < nodeSize +1; i++){
-		keyPointerIndex.pop_back(); //remove the entries we just copied over
+		if(!keyPointerIndex.empty()){
+			keyPointerIndex.pop_back(); //remove the entries we just copied over
+		}
 	}
 	//key, pointer pair of new node to insert to parent 
 	std::pair<int, void*> p = ((InnerNode *)rightSibling)->keyPointerIndex.at(0);
@@ -245,7 +247,7 @@ void* InnerNode::split(){
 	}
 
 	//didn't create new parent, need to add new NOde to parent index
-	((InnerNode *)parent)->insertFromChild( p.first, rightSibling);
+	((InnerNode *)parent)->insertFromChild( ((InnerNode*)rightSibling)->getKey(), rightSibling);
 	return parent;
 }
 
@@ -265,7 +267,7 @@ std::string InnerNode::find(int key){
 		return ((Node*)extra)->find(key);
 	}
 
-	for(i = 1; i < keyPointerIndex.size() && key > keyPointerIndex.at(i).first; i++){
+	for(i = 1; i < keyPointerIndex.size() && key >= keyPointerIndex.at(i).first; i++){
 	}
 
 	void* nextNode = keyPointerIndex.at(i-1).second;
@@ -310,7 +312,7 @@ void InnerNode::remove(int key){
 		return ((Node*)extra)->remove(key);
 	}
 
-	for(i = 1; i < keyPointerIndex.size() && key > keyPointerIndex.at(i).first; i++){
+	for(i = 1; i < keyPointerIndex.size() && key >= keyPointerIndex.at(i).first; i++){
 	}
 
 	void* nextNode = keyPointerIndex.at(i-1).second;
@@ -352,8 +354,10 @@ void InnerNode::removeLeftChild(void* deadChild){
 		keyPointerIndex.at(j).second = keyPointerIndex.at(j+1).second;
 		keyPointerIndex.at(j).first = ((Node*)keyPointerIndex.at(j).second)->getKey();
 	}
-	keyPointerIndex.pop_back(); 
-	printNode();
+	if(!keyPointerIndex.empty()){
+		keyPointerIndex.pop_back();
+	}
+	//printNode();
 	//check if innerNOde is now to small AND this is not the root
 	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
 		//modularise with restructure();
@@ -395,13 +399,14 @@ void InnerNode::borrowLeft(){
 			break;
 		}
 	}
-
 	//copy extra into front of the IndexPointer vector
 	keyPointerIndex.insert(keyPointerIndex.begin(), std::pair<int, void*>(((Node*)extra)->getKey(), extra));
 	//overwrite extra with right-most pointer from sibling
 	extra = ((InnerNode*)leftSibling)->keyPointerIndex.back().second;
 	//remove key, pointer pair from the sibling
-	((InnerNode*)leftSibling)->keyPointerIndex.pop_back();
+	if( !((InnerNode*)leftSibling)->keyPointerIndex.empty()){
+		((InnerNode*)leftSibling)->keyPointerIndex.pop_back();
+	}
 	//Luke, i am your father
 	((Node*)extra)->setParent(this);
 	((InnerNode*)parent)->updateChildKey(keyToUpdate, getKey());
@@ -483,7 +488,9 @@ void InnerNode::shiftPointersLeft(){
 		keyPointerIndex.at(i).first = ((Node*)keyPointerIndex.at(i).second)->getKey();
 	}
 	//remove last element
-	keyPointerIndex.pop_back();
+	if(!keyPointerIndex.empty()){
+		keyPointerIndex.pop_back();
+	}
 }
 
 void InnerNode::removeRightChild(void* deadChild){
@@ -498,7 +505,9 @@ void InnerNode::removeRightChild(void* deadChild){
 		keyPointerIndex.at(j).second = keyPointerIndex.at(j+1).second;
 		keyPointerIndex.at(j).first = ((Node*)keyPointerIndex.at(j).second)->getKey();
 	}
-	keyPointerIndex.pop_back();
+	if(!keyPointerIndex.empty()){
+		keyPointerIndex.pop_back();
+	}
 
 	//check if innerNOde is now to small AND this is not the root
 	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
@@ -652,7 +661,9 @@ void* LeafNode::split(){
 		key = iterator->first; //extract key
 		value = iterator->second; //extract sting value
 		iterator--; //move backwards through vector
-		keyValueIndex.pop_back(); //delete old key,string pair
+		if(!keyValueIndex.empty()){
+			keyValueIndex.pop_back(); //delete old key,string pair
+		}
 		((LeafNode *)rightSibling)->insert(key, value);
 	}
 	//key, value pair of new node to insert to parent 
@@ -693,16 +704,21 @@ std::string LeafNode::find(int key){
  *will rearrange keys and values from sibling nodes to maintain structure of the tree
  */
 void LeafNode::remove(int keyToRemove){
+
+	std::cout <<"Trying to remove " << keyToRemove << "\n";
 	bool found = false;
 	auto iterator = keyValueIndex.begin();
 	while(iterator != keyValueIndex.end() &&!found){
+		std::cout << "Comparing " << keyToRemove << " to " << iterator->first << "\n";
 		if(iterator->first == keyToRemove){
 			found = true;
 			keyValueIndex.erase(iterator);
+			std::cout << "Found key \n";
 		}
 		iterator++;
 	}
 	if(!found){ //key was not found
+		std::cout << "Couldn't find " << keyToRemove <<"\n";
 		return;
 	}
 
@@ -728,7 +744,6 @@ void LeafNode::remove(int keyToRemove){
 	}
 	//Case 3 -- Try to coalese with left
 	if(leftSibling != nullptr){//} && ((LeafNode*)leftSibling)->parent == parent){
-		std::cout << "Calling coaleseLeft from leaf\n";
 		coaleseLeft();
 		return;
 	}
@@ -761,7 +776,9 @@ void LeafNode::borrowLeft(int oldKey){
 	int newKey = ((LeafNode*)leftSibling)->keyValueIndex.back().first;
 	std::string newValue = ((LeafNode*)leftSibling)->keyValueIndex.back().second;
 	insert(newKey, newValue);
-	((LeafNode*)leftSibling)->keyValueIndex.pop_back(); //delete value from sibling
+	if( !((LeafNode*)leftSibling)->keyValueIndex.empty()){
+		((LeafNode*)leftSibling)->keyValueIndex.pop_back(); //delete value from sibling
+	}
 	//update parent key
 	((InnerNode*)parent)->updateChildKey(oldKey, getKey());
 }

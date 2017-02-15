@@ -82,63 +82,63 @@ bool testSearchFull(){
 }
 
 bool testDeletion(){
-	void* testNode = new LeafNode(3);
-	testNode = ((Node*)testNode)->insert(0, "test");
-	testNode = ((Node*)testNode)->insert(1, "test");
-	testNode = ((Node*)testNode)->insert(3, "test");
-	testNode = ((Node*)testNode)->insert(4, "test");
-	testNode = ((Node*)testNode)->insert(2, "test");
-	testNode = ((Node*)testNode)->insert(9, "test");
+	// void* testNode = new LeafNode(3);
+	// testNode = ((Node*)testNode)->insert(0, "test");
+	// testNode = ((Node*)testNode)->insert(1, "test");
+	// testNode = ((Node*)testNode)->insert(3, "test");
+	// testNode = ((Node*)testNode)->insert(4, "test");
+	// testNode = ((Node*)testNode)->insert(2, "test");
+	// testNode = ((Node*)testNode)->insert(9, "test");
 
-	std::cout << "Testing base case\n";
-	((Node*)testNode)->printNode();
-	std::cout << std::endl;
-	//test base case, already exists, no restructuring needed
-
-
-	((Node*)testNode)->remove(9);
-	if( ((Node*)testNode)->find(9) != ""){
-		std::cout << "Test 1 failed\n";
-		return false;
-	}
-
-	((Node*)testNode)->printNode();
-	std::cout << std::endl;
-
-	//test case 1 -- deletion requires borrowing from left sibling
-	((Node*)testNode)->remove(3);
-	if( ((Node*)testNode)->find(3) != ""){
-		std::cout << "Test 2 failed\n";
-		return false;
-	}
+	// std::cout << "Testing base case\n";
+	// ((Node*)testNode)->printNode();
+	// std::cout << std::endl;
+	// //test base case, already exists, no restructuring needed
 
 
-	((Node*)testNode)->printNode();
-	std::cout << std::endl;
+	// ((Node*)testNode)->remove(9);
+	// if( ((Node*)testNode)->find(9) != ""){
+	// 	std::cout << "Test 1 failed\n";
+	// 	return false;
+	// }
 
-	//test case 2 -- deletion requires borrowing from right sibling
-	testNode = ((Node*)testNode)->insert(5, "test");
-	((Node*)testNode)->remove(1);
-	if( ((Node*)testNode)->find(1) != ""){
-		std::cout << "Test 3 failed\n";
-		return false;
-	}
+	// ((Node*)testNode)->printNode();
+	// std::cout << std::endl;
 
-	((Node*)testNode)->printNode();
-	std::cout << std::endl;
+	// //test case 1 -- deletion requires borrowing from left sibling
+	// ((Node*)testNode)->remove(3);
+	// if( ((Node*)testNode)->find(3) != ""){
+	// 	std::cout << "Test 2 failed\n";
+	// 	return false;
+	// }
 
-	//test case 3 -- deletion requires coalescing with left sibling
-	//Tree structure at this point SPECIAL CASE BAD EXAMPLE
-	// [4]
-	// [0 2] [4 5]
-	// delete 4 to force left coalesce
-	((Node*)testNode)->remove(4);
 
-	std::cout << "removal finished\n";
-	if( ((Node*)testNode)->find(4) != ""){
-		std::cout << "Test 4 Failed\n"; //ruh roh
- 		return false;
-	}
+	// ((Node*)testNode)->printNode();
+	// std::cout << std::endl;
+
+	// //test case 2 -- deletion requires borrowing from right sibling
+	// testNode = ((Node*)testNode)->insert(5, "test");
+	// ((Node*)testNode)->remove(1);
+	// if( ((Node*)testNode)->find(1) != ""){
+	// 	std::cout << "Test 3 failed\n";
+	// 	return false;
+	// }
+
+	// ((Node*)testNode)->printNode();
+	// std::cout << std::endl;
+
+	// //test case 3 -- deletion requires coalescing with left sibling
+	// //Tree structure at this point SPECIAL CASE BAD EXAMPLE
+	// // [4]
+	// // [0 2] [4 5]
+	// // delete 4 to force left coalesce
+	// ((Node*)testNode)->remove(4);
+
+	// std::cout << "removal finished\n";
+	// if( ((Node*)testNode)->find(4) != ""){
+	// 	std::cout << "Test 4 Failed\n"; //ruh roh
+ // 		return false;
+	// }
 
 //----------------------------------------------------------------------------------
 
@@ -230,38 +230,58 @@ bool testDeletion(){
 	return true;
 }
 
+void newDeletion(){
+	void* testNode = new LeafNode(3);
+	for(int i = 0; i < 20; i++){
+		testNode = ((Node*)testNode)->insert(i, "test" + i);		
+	}
+	((Node*)testNode)->printNode();
+	std::cout<<"\n";
+
+	((Node*)testNode)->remove(12);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	// ((Node*)testNode)->remove(19);
+	// ((Node*)testNode)->printNode();
+	// std::cout<<std::endl;
+}
+
+
 int main(){
 	std::cout <<"Driver program\n";
 
-	std::cout <<"Testing printing of the tree\n";
-	testPrint();
+	newDeletion();
 
-	std::cout << "\nTesting find() in LeafNode\n";
-	if(testSearchLeaf()){
-		std::cout << "Find in LeafNode passes tests\n";
-	}
-	else{
-		std::cout << "Find in LeafNode failed a test\n";
-		return 1;
-	}
+	// std::cout <<"Testing printing of the tree\n";
+	// testPrint();
 
-	std::cout << "\nTesting find() with InnerNodes\n";
-	if(testSearchFull()){
-		std::cout << "Find with InnerNodes passes tests\n";
-	}
-	else{
-		std::cout << "Find with InnerNodes failed a test\n";
-		return 1;
-	}
+	// std::cout << "\nTesting find() in LeafNode\n";
+	// if(testSearchLeaf()){
+	// 	std::cout << "Find in LeafNode passes tests\n";
+	// }
+	// else{
+	// 	std::cout << "Find in LeafNode failed a test\n";
+	// 	return 1;
+	// }
+
+	// std::cout << "\nTesting find() with InnerNodes\n";
+	// if(testSearchFull()){
+	// 	std::cout << "Find with InnerNodes passes tests\n";
+	// }
+	// else{
+	// 	std::cout << "Find with InnerNodes failed a test\n";
+	// 	return 1;
+	// }
 
 
-	std::cout << "\nTesting deletion\n";
-	if(testDeletion()){
-		std::cout << "deletion passes tests\n";
-	}
-	else{
-		std::cout << "deletion failed a test";
-		return 1;
-	}
+	// std::cout << "\nTesting deletion\n";
+	// if(testDeletion()){
+	// 	std::cout << "deletion passes tests\n";
+	// }
+	// else{
+	// 	std::cout << "deletion failed a test";
+	// 	return 1;
+	// }
 	return 0;
 }
