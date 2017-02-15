@@ -168,7 +168,11 @@ void* InnerNode::insertFromChild(int key, void* child){
 	//newly created root node. First the left-most child is added to extra, 
 	//all others will be added to the index vector
 	if(extra == nullptr){
-		extra = child;
+		std::cout << "InnerNode::insertFromChild PRINTING child BEFORE assigning it to extra\n\n";
+		std::cout << "\nInnerNode::insertFromChild key = " << key << std::endl;
+		((Node*)child)->printNode();
+		std::cout << "\nInnerNode::insertFromChild DONE PRINTING child\n\n";
+		extra = child; 
 		return this;
 	}
 	auto insertionPoint = keyPointerIndex.begin();
@@ -359,10 +363,12 @@ void InnerNode::removeLeftChild(void* deadChild){
 		keyPointerIndex.at(j).second = keyPointerIndex.at(j+1).second;
 		keyPointerIndex.at(j).first = ((Node*)keyPointerIndex.at(j).second)->getKey();
 	}
+
 	if(!keyPointerIndex.empty()){
 		keyPointerIndex.pop_back();
 	}
 	//printNode();
+
 	//check if innerNOde is now to small AND this is not the root
 	if(keyPointerIndex.size() < nodeSize/2 && parent != nullptr){
 		//modularise with restructure();
@@ -581,7 +587,6 @@ LeafNode::LeafNode(int n) : Node(n){
  *
  */
 void* LeafNode::insert(int key, std::string value){
-	
 	std::vector< std::pair<int, std::string> >::iterator insertionPoint = keyValueIndex.begin();
 	//set returnValue to be the root of the tree
 	//this is overridden only in the case of splitting a node, which may cause there to be a new root
@@ -604,14 +609,28 @@ void* LeafNode::insert(int key, std::string value){
 		return returnValue;
 	}
 
+	if (key == -1) {
+		std::cout << "LeafNode::insert BEFORE CHECK FOR SPLIT, inserting -1" << std::endl;
+		((Node*)this)->printNode();
+		std::cout << "\nLeafNode::insert Finished printing\n";
+	}
+
 	//Need to check if split is needed after insertion
 	keyValueIndex.insert(insertionPoint, std::pair<int, std::string>(key, value));
 	if(keyValueIndex.size() > nodeSize){
 		split();
 	}
+
 	while (((Node*)returnValue)->getParent() != nullptr){
 		returnValue = ((Node*)returnValue)->getParent();
 	}
+
+	if (key == -1) {
+			std::cout << "LeafNode::insert AFTER CHECK FOR SPLIT, inserting -1" << std::endl;
+			((Node*)this)->printNode();
+			std::cout << "\nLeafNode::insert Finished printing\n";
+	}
+
 	return returnValue;
 }
 
@@ -732,6 +751,22 @@ void LeafNode::remove(int keyToRemove){
 		return;
 	}
 
+	if(keyToRemove == 2) {
+		std::cout << "\nLeafNode::remove BEFORE determining if we need to coalese or redistribute\n\n";
+		std::cout << "\nLeafNode::remove LEFT SIBLING\t" << ((LeafNode*)leftSibling) << "\n";
+		((LeafNode*)leftSibling)->printNode();
+		std::cout << "\nLeafNode::remove LEFT SIBLING's RIGHT SIBLING\t" << ((LeafNode*)((LeafNode*)leftSibling)->rightSibling) << "\n";
+		((LeafNode*)((LeafNode*)leftSibling)->rightSibling)->printNode();
+		std::cout << "\nLeafNode::remove PARENT\t" << ((InnerNode*)parent) << "\n";
+		((InnerNode*)parent)->printNode();
+		std::cout << "\nLeafNode::remove LEFT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)leftSibling)->parent) << "\n";
+		((InnerNode*)((LeafNode*)leftSibling)->parent)->printNode();
+		std::cout << "\nLeafNode::remove RIGHT SIBLING\t" << ((LeafNode*)rightSibling) << "\n";
+		((LeafNode*)rightSibling)->printNode();
+		std::cout << "\nLeafNode::remove RIGHT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)rightSibling)->parent) << "\n";
+		((InnerNode*)((LeafNode*)rightSibling)->parent)->printNode();
+		std::cout << "LeafNode::remove FINISHED PRINTING DEBUG STATEMENTS\n\n";
+	}
 
 	//The node is less than half full
 	//Case 1 -- Try to borrow from left sibling if it exists

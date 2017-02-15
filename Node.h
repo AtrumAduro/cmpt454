@@ -13,6 +13,10 @@
 #include <utility> //std::pair
 #include <string>
 class Node{
+	// Allows LeafNode and InnerNode to have access to protected members of Node
+	friend class LeafNode;
+	friend class InnerNode;
+
 	public:
 		/*
 		 *Constructs an empty node with maximum size n

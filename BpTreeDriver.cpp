@@ -140,32 +140,32 @@ bool testDeletion(){
  // 		return false;
 	// }
 
-//----------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------------*/
 
 
 
-	// ((Node*)testNode)->printNode();
-	// std::cout <<std::endl;
+	//((Node*)testNode)->printNode();
+	//std::cout <<std::endl;
 
 
-	// //test case 4 -- deletion requires coalescing with right sibling
-	// //create new tree of structure
-	// //[4]
-	// //[2, 3] [4, 5]
-	// void* testNode2 = new LeafNode(3);
-	// testNode2 = ((Node*)testNode2)->insert(2, "hi");
-	// testNode2 = ((Node*)testNode2)->insert(3, "hi");
-	// testNode2 = ((Node*)testNode2)->insert(4, "hi");
-	// testNode2 = ((Node*)testNode2)->insert(5, "hi");
-	// ((Node*)testNode2)->printNode();
+	//test case 4 -- deletion requires coalescing with right sibling
+	//create new tree of structure
+	//[4]
+	//[2, 3] [4, 5]
+	void* testNode2 = new LeafNode(3);
+	testNode2 = ((Node*)testNode2)->insert(2, "hi");
+	testNode2 = ((Node*)testNode2)->insert(3, "hi");
+	testNode2 = ((Node*)testNode2)->insert(4, "hi");
+	testNode2 = ((Node*)testNode2)->insert(5, "hi");
+	((Node*)testNode2)->printNode();
 
-	// //remove 3
-	// ((Node*)testNode2)->remove(3);
-	// std::cout << "AFter deleting 3:\n";
-	// ((Node*)testNode2)->printNode();
+	//remove 3
+	((Node*)testNode2)->remove(3);
+	std::cout << "AFter deleting 3:\n";
+	((Node*)testNode2)->printNode();
 
 
-	// std::cout << std::endl;
+	//std::cout << std::endl;
 
 	// std::cout << "Testing borrow left in InnerNodes\n";
 	// void* testNode3 = new LeafNode(3);
@@ -202,6 +202,7 @@ bool testDeletion(){
 	}
 	for(int i = -2; i <= 1; i++){
 		testNode4 = ((Node*)testNode4)->insert(i, "test");
+		std::cout << ((Node*)testNode4)->find(i) << std::endl;
 	}
 	((Node*)testNode4)->printNode();
 	std::cout<<std::endl;
@@ -216,16 +217,16 @@ bool testDeletion(){
 	std::cout << "Removing 9\n";
 	((Node*)testNode4)->remove(9);
 	((Node*)testNode4)->printNode();
+	std::cout << "\n";
 
 	for(int i = 0; i <=3; i++){
 		std::cout << "removing " << i << "\n";
+		std::cout << "BEFORE REMOVING " << i << " find(-2) returns " << ((Node*)testNode4)->find(-2) << std::endl;
 		((Node*)testNode4)->remove(i);
+		std::cout << "AFTER REMOVING " << i << " find(-2) returns " << ((Node*)testNode4)->find(-2) << std::endl;
 		((Node*)testNode4)->printNode();
 		std::cout<<"\n";		
 	}
-
-
-
 
 	return true;
 }
@@ -269,7 +270,7 @@ int main(){
 	std::cout <<"Driver program\n";
 
 	newDeletion();
-
+	testDeletion();
 	// std::cout <<"Testing printing of the tree\n";
 	// testPrint();
 
