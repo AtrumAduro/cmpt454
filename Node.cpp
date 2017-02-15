@@ -306,6 +306,11 @@ void InnerNode::printNode() const{
  *need to be rearranged to maintain proper tree structure
  */
 void InnerNode::remove(int key){
+	std::cout <<"Looking in node [";
+	for(int i = 0; i < keyPointerIndex.size(); i++){
+		std::cout<< keyPointerIndex.at(i).first << " ";
+	}
+	std::cout<<"]\n";
 	int i;
 
 	if(key < keyPointerIndex.at(0).first){
@@ -390,15 +395,11 @@ void InnerNode::removeLeftChild(void* deadChild){
 }
 
 void InnerNode::borrowLeft(){
+	std::cout <<"Borrowing from left sibling InnerNode\n";
+	int updateKey;
 	auto iterator = ((InnerNode*)parent)->keyPointerIndex.begin();
 	int keyToUpdate = iterator->first;
-	iterator++;
-	while (iterator != ((InnerNode*)parent)->keyPointerIndex.end()){
-		if(iterator->first >= getKey()){
-			keyToUpdate = iterator->first;
-			break;
-		}
-	}
+	
 	//copy extra into front of the IndexPointer vector
 	keyPointerIndex.insert(keyPointerIndex.begin(), std::pair<int, void*>(((Node*)extra)->getKey(), extra));
 	//overwrite extra with right-most pointer from sibling
@@ -409,9 +410,14 @@ void InnerNode::borrowLeft(){
 	}
 	//Luke, i am your father
 	((Node*)extra)->setParent(this);
+	//Update the key in the parent node
+	while (iterator != ((InnerNode*)parent)->keyPointerIndex.end()){
+		if(iterator->first >= getKey()){
+			keyToUpdate = iterator->first;
+			break;
+		}
+	}
 	((InnerNode*)parent)->updateChildKey(keyToUpdate, getKey());
-
-
 }
 
 void InnerNode::borrowRight(){
@@ -704,21 +710,21 @@ std::string LeafNode::find(int key){
  *will rearrange keys and values from sibling nodes to maintain structure of the tree
  */
 void LeafNode::remove(int keyToRemove){
-
-	std::cout <<"Trying to remove " << keyToRemove << "\n";
+	std::cout <<"Looking in node [";
+	for(int i = 0; i < keyValueIndex.size(); i++){
+		std::cout<< keyValueIndex.at(i).first << " ";
+	}
+	std::cout<<"]\n";
 	bool found = false;
 	auto iterator = keyValueIndex.begin();
 	while(iterator != keyValueIndex.end() &&!found){
-		std::cout << "Comparing " << keyToRemove << " to " << iterator->first << "\n";
 		if(iterator->first == keyToRemove){
 			found = true;
 			keyValueIndex.erase(iterator);
-			std::cout << "Found key \n";
 		}
 		iterator++;
 	}
 	if(!found){ //key was not found
-		std::cout << "Couldn't find " << keyToRemove <<"\n";
 		return;
 	}
 
@@ -743,7 +749,7 @@ void LeafNode::remove(int keyToRemove){
 		}
 	}
 	//Case 3 -- Try to coalese with left
-	if(leftSibling != nullptr){//} && ((LeafNode*)leftSibling)->parent == parent){
+	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
 		coaleseLeft();
 		return;
 	}

@@ -242,9 +242,26 @@ void newDeletion(){
 	((Node*)testNode)->printNode();
 	std::cout<<std::endl;
 
-	// ((Node*)testNode)->remove(19);
-	// ((Node*)testNode)->printNode();
-	// std::cout<<std::endl;
+	((Node*)testNode)->remove(19);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(11);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(8);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(7);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;
+
+	((Node*)testNode)->remove(4);
+	((Node*)testNode)->printNode();
+	std::cout<<std::endl;	
+
 }
 
 
