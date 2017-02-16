@@ -83,6 +83,12 @@ void Node::printValues(){
 
 }
 
+bool Node::isEmpty() const {return true;}
+
+void Node::fullDeletion(){}
+
+void* Node::findLeaf(int key){ return this;}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
@@ -127,33 +133,16 @@ void* InnerNode::insert(int key, std::string value){
  *the key after it was inserted to the Tree
  */
 void* InnerNode::findLeaf(int key){
+	if(keyPointerIndex.empty() || key < keyPointerIndex.at(0).first){
+		return ((Node*)extra)->findLeaf(key);
+	}
 	int i;
-	for(i = 0; i < keyPointerIndex.size(); i++){
+	for(i = 1; i < keyPointerIndex.size() ; i++ ){
 		if(key < keyPointerIndex.at(i).first){
-			continue;
-		}
-		else{
 			break;
 		}
 	}
-
-	if(i == 0){
-		if(InnerNode* node = static_cast<InnerNode*> (extra)){ //extra is another InnerNode
-			((InnerNode*)extra)->findLeaf(key);
-		}
-		else{
-			return extra;
-		}
-	}
-	else{
-		void* nextNode = keyPointerIndex.at(i-1).second;
-		if(InnerNode* node = static_cast<InnerNode*>(nextNode)){ //nextNode is another InnerNode
-			((InnerNode*)extra)->findLeaf(key);	
-		}
-		else{
-			return nextNode;
-		}
-	}
+	return ((Node*)keyPointerIndex.at(i-1).second)->findLeaf(key);
 }
 
 /*
@@ -176,10 +165,6 @@ void* InnerNode::insertFromChild(int key, void* child){
 	//newly created root node. First the left-most child is added to extra, 
 	//all others will be added to the index vector
 	if(extra == nullptr){
-		std::cout << "InnerNode::insertFromChild PRINTING child BEFORE assigning it to extra\n\n";
-		std::cout << "\nInnerNode::insertFromChild key = " << key << std::endl;
-		((Node*)child)->printNode();
-		std::cout << "\nInnerNode::insertFromChild DONE PRINTING child\n\n";
 		extra = child; 
 		return this;
 	}
@@ -326,11 +311,6 @@ void InnerNode::remove(int key){
 		((Node*)extra)->remove(key);
 		return;
 	}
-	std::cout <<"Looking for " << key << " in node [";
-	for(int i = 0; i < keyPointerIndex.size(); i++){
-		std::cout<< keyPointerIndex.at(i).first << " ";
-	}
-	std::cout<<"]\n";
 	int i;
 
 	if(key < keyPointerIndex.at(0).first){
@@ -417,7 +397,6 @@ void InnerNode::removeLeftChild(void* deadChild){
 }
 
 void InnerNode::borrowLeft(){
-	std::cout <<"Borrowing from left sibling InnerNode\n";
 	int updateKey;
 	auto iterator = ((InnerNode*)parent)->keyPointerIndex.begin();
 	int keyToUpdate = iterator->first;
@@ -594,6 +573,23 @@ void InnerNode::printValues(){
 	((Node*)extra)->printValues();
 }
 
+bool InnerNode::isEmpty() const {
+	return keyPointerIndex.empty();
+}
+
+void InnerNode::fullDeletion(){
+
+	auto iterator = keyPointerIndex.begin();
+
+	while(iterator != keyPointerIndex.end()){
+		((Node*)iterator->second)->fullDeletion();
+		delete (Node*)(iterator->second);
+		iterator++;
+	}
+
+	((Node*)extra)->fullDeletion();
+	delete (Node*)extra;
+}
 //-----------------------------------
 //LeafNode implementation
 //-----------------------------------
@@ -608,7 +604,8 @@ LeafNode::LeafNode(int n) : Node(n){
  *
  */
 void* LeafNode::insert(int key, std::string value){
-	std::vector< std::pair<int, std::string> >::iterator insertionPoint = keyValueIndex.begin();
+
+ 	auto insertionPoint = keyValueIndex.begin();
 	//set returnValue to be the root of the tree
 	//this is overridden only in the case of splitting a node, which may cause there to be a new root
 	void* returnValue = this;
@@ -630,12 +627,6 @@ void* LeafNode::insert(int key, std::string value){
 		return returnValue;
 	}
 
-	if (key == -1) {
-		std::cout << "LeafNode::insert BEFORE CHECK FOR SPLIT, inserting -1" << std::endl;
-		((Node*)this)->printNode();
-		std::cout << "\nLeafNode::insert Finished printing\n";
-	}
-
 	//Need to check if split is needed after insertion
 	keyValueIndex.insert(insertionPoint, std::pair<int, std::string>(key, value));
 	if(keyValueIndex.size() > nodeSize){
@@ -644,12 +635,6 @@ void* LeafNode::insert(int key, std::string value){
 
 	while (((Node*)returnValue)->getParent() != nullptr){
 		returnValue = ((Node*)returnValue)->getParent();
-	}
-
-	if (key == -1) {
-			std::cout << "LeafNode::insert AFTER CHECK FOR SPLIT, inserting -1" << std::endl;
-			((Node*)this)->printNode();
-			std::cout << "\nLeafNode::insert Finished printing\n";
 	}
 
 	return returnValue;
@@ -754,11 +739,6 @@ std::string LeafNode::find(int key){
  *will rearrange keys and values from sibling nodes to maintain structure of the tree
  */
 void LeafNode::remove(int keyToRemove){
-	std::cout <<"Looking in node [";
-	for(int i = 0; i < keyValueIndex.size(); i++){
-		std::cout<< keyValueIndex.at(i).first << " ";
-	}
-	std::cout<<"]\n";
 	bool found = false;
 	auto iterator = keyValueIndex.begin();
 	while(iterator != keyValueIndex.end() &&!found){
@@ -775,23 +755,6 @@ void LeafNode::remove(int keyToRemove){
 	if(keyValueIndex.size() > nodeSize/2){ //still more than half full
 		return;
 	}
-
-	// if(keyToRemove == 2) {
-	// 	std::cout << "\nLeafNode::remove BEFORE determining if we need to coalese or redistribute\n\n";
-	// 	std::cout << "\nLeafNode::remove LEFT SIBLING\t" << ((LeafNode*)leftSibling) << "\n";
-	// 	((LeafNode*)leftSibling)->printNode();
-	// 	std::cout << "\nLeafNode::remove LEFT SIBLING's RIGHT SIBLING\t" << ((LeafNode*)((LeafNode*)leftSibling)->rightSibling) << "\n";
-	// 	//((LeafNode*)((LeafNode*)leftSibling)->rightSibling)->printNode();
-	// 	std::cout << "\nLeafNode::remove PARENT\t" << ((InnerNode*)parent) << "\n";
-	// 	((InnerNode*)parent)->printNode();
-	// 	std::cout << "\nLeafNode::remove LEFT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)leftSibling)->parent) << "\n";
-	// 	((InnerNode*)((LeafNode*)leftSibling)->parent)->printNode();
-	// 	std::cout << "\nLeafNode::remove RIGHT SIBLING\t" << ((LeafNode*)rightSibling) << "\n";
-	// 	((LeafNode*)rightSibling)->printNode();
-	// 	std::cout << "\nLeafNode::remove RIGHT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)rightSibling)->parent) << "\n";
-	// 	((InnerNode*)((LeafNode*)rightSibling)->parent)->printNode();
-	// 	std::cout << "LeafNode::remove FINISHED PRINTING DEBUG STATEMENTS\n\n";
-	// }
 
 	//The node is less than half full
 	//Case 1 -- Try to borrow from left sibling if it exists
@@ -810,9 +773,6 @@ void LeafNode::remove(int keyToRemove){
 	}
 	//Case 3 -- Try to coalese with left
 	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
-		if(keyToRemove == 2){
-			std::cout <<"Trying to coalses with leftSibling\n";
-		}
 		coaleseLeft();
 		return;
 	}
@@ -842,6 +802,7 @@ void LeafNode::setParent(void* newParent){
 }
 
 void LeafNode::borrowLeft(int oldKey){
+	int replacementKey = getKey();
 	int newKey = ((LeafNode*)leftSibling)->keyValueIndex.back().first;
 	std::string newValue = ((LeafNode*)leftSibling)->keyValueIndex.back().second;
 	insert(newKey, newValue);
@@ -849,7 +810,7 @@ void LeafNode::borrowLeft(int oldKey){
 		((LeafNode*)leftSibling)->keyValueIndex.pop_back(); //delete value from sibling
 	}
 	//update parent key
-	((InnerNode*)parent)->updateChildKey(oldKey, getKey());
+	((InnerNode*)parent)->updateChildKey(replacementKey, getKey());
 }
 
 void LeafNode::borrowRight(){
@@ -895,19 +856,20 @@ void* LeafNode::coaleseLeft(){
 
 void* LeafNode::coaleseRight(){
 	void* returnValue = this;
-
 	//insert all values from right sibling into current node
 	auto iterator = ((LeafNode*)rightSibling)->keyValueIndex.begin();
-	while(iterator != ((LeafNode*)rightSibling)->keyValueIndex.end()){
+
+	while(iterator != ((LeafNode*)rightSibling)->keyValueIndex.end() ){
 		insert(iterator->first, iterator->second);
 		iterator++;
 	}
-
 	LeafNode* temp = (LeafNode*)rightSibling;
 	rightSibling = temp->rightSibling; //update right sibling of current
+
 	if(rightSibling != nullptr){
 		((LeafNode*)rightSibling)->leftSibling = this;
 	}
+
 	((InnerNode*)parent)->removeRightChild(temp);
 	delete temp;
 
@@ -926,4 +888,28 @@ void LeafNode::printValues(){
 		//print all values in subsequent nodes
 		((Node*)rightSibling)->printValues();
 	}
+}
+
+bool LeafNode::contains(int key){
+	auto iterator = keyValueIndex.begin();
+	while(iterator != keyValueIndex.end()){
+		if(iterator->first == key){
+			return true;
+		}
+		iterator++;
+	}
+	return false;
+}
+
+bool LeafNode::isEmpty() const {
+	return false;
+}
+
+void LeafNode::fullDeletion(){
+	//no dynamically allocated memory in leaves, do nothing
+	return;
+}
+
+void* LeafNode::findLeaf(int key){
+	return this; 
 }

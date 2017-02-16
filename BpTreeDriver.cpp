@@ -319,37 +319,25 @@ void newDeletion(){
 int main(){
 	std::cout <<"Driver program\n";
 	
-	//newDeletion();
-	testDeletion();
-	// std::cout <<"Testing printing of the tree\n";
-	// testPrint();
+	BpTree testTree(5);
 
-	// std::cout << "\nTesting find() in LeafNode\n";
-	// if(testSearchLeaf()){
-	// 	std::cout << "Find in LeafNode passes tests\n";
-	// }
-	// else{
-	// 	std::cout << "Find in LeafNode failed a test\n";
-	// 	return 1;
-	// }
+	int keys [19]= {2, 11, 21, 8, 64, 5, 23, 97, 6, 19, 9,  7, 31, 39, 45, 51, 60, 93, 77};
 
-	// std::cout << "\nTesting find() with InnerNodes\n";
-	// if(testSearchFull()){
-	// 	std::cout << "Find with InnerNodes passes tests\n";
-	// }
-	// else{
-	// 	std::cout << "Find with InnerNodes failed a test\n";
-	// 	return 1;
-	// }
+	for(int i = 0; i < 19; i++){
+		testTree.insert(keys[i], "test");
+	}
+	testTree.printKeys();
+
+	for(int i = 0; i < 19; i++){
+		//if(keys[i] % 2 == 0){
+			std::cout << "Removing " << keys[i] << "\n";
+			testTree.remove(keys[i]);
+			testTree.printKeys();
+			std::cout << "\n";
+		//}
+	}
 
 
-	// std::cout << "\nTesting deletion\n";
-	// if(testDeletion()){
-	// 	std::cout << "deletion passes tests\n";
-	// }
-	// else{
-	// 	std::cout << "deletion failed a test";
-	// 	return 1;
-	// }
+
 	return 0;
 }

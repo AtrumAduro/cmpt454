@@ -16,6 +16,7 @@ class Node{
 	// Allows LeafNode and InnerNode to have access to protected members of Node
 	friend class LeafNode;
 	friend class InnerNode;
+	friend class BpTree;
 
 	public:
 		/*
@@ -72,6 +73,14 @@ class Node{
 		 *Prints the values of the tree to standard output
 		 */
 		virtual void printValues();
+
+		/*returns true if there are no keys in the vector*/
+		virtual bool isEmpty() const;
+
+		/*deletes all child nodes and values*/
+		virtual void fullDeletion();
+
+		virtual void* findLeaf(int key);
 		
 	protected:
 		int nodeSize; //max number of keys in the node
@@ -82,6 +91,7 @@ class Node{
 };
 
 class InnerNode : public Node{
+	friend class BpTree;
 	public:
 		/*
 		 *Default constructor. Constructs of node with a max number of keys n
@@ -171,8 +181,12 @@ class InnerNode : public Node{
 		 */
 		void printValues();
 
+		bool isEmpty() const;
+
+		virtual void fullDeletion();
+
 		
-	private:
+	protected:
 		//list of integer keys and their corresponding Node pointers to children within the B+tree
 		//extra points to the Node with smallest key values
 		//for all other keys, serach until searchkey < indexKey, then follow previous index's pointer
@@ -226,9 +240,12 @@ class InnerNode : public Node{
 		void shiftPointersLeft();
 
 
+
+
 };
 
 class LeafNode : public Node{
+	friend class BpTree;
 	public:
 		/*
 		 *Default constructor. Constructs a leaf node with a max number of keys n
@@ -286,6 +303,15 @@ class LeafNode : public Node{
 		 *Prints the values of the tree to standard output
 		 */
 		void printValues();
+
+		//returns true if the node contains the key, false otherwise
+		bool contains(int key);
+
+		bool isEmpty() const;
+
+		void fullDeletion();
+
+		void* findLeaf(int key);
 
 	private:
 		//list of integer keys and their corresponding string values

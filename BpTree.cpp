@@ -13,13 +13,16 @@ BpTree::BpTree(int n){
 	root = nullptr;
 }
 
-BpTree::BpTree(BpTree& other){
+BpTree::BpTree(BpTree& other){ //need to make copy
 	nodeSize = other.nodeSize;
 	root = other.root; //temporary just to compile. Needs to be made proper
 }
 
 BpTree::~BpTree(){
-	delete root; //temporary just to compile. Needs to be made proper
+	if(root != nullptr){
+		((Node*)root)->fullDeletion();
+		delete (Node*)root;
+	}
 }
 
 /*
@@ -28,6 +31,16 @@ BpTree::~BpTree(){
  *Returns true if insertion was successful, otherwise false
  */
 bool BpTree::insert(int key, std::string value){
+	if(root == nullptr){
+		root = new LeafNode(nodeSize);
+	}
+
+	void* insertionNode = ((Node*)root)->findLeaf(key);
+	if( ((LeafNode*)insertionNode)->contains(key)){
+		return false; //duplicates are not allowed
+	}
+
+	root = ((Node*)root)->insert(key, value);
 	return true;
 }
 
@@ -36,6 +49,23 @@ bool BpTree::insert(int key, std::string value){
 *Returns true if the value was successfully removed, false if the value is not in the tree
 */
 bool BpTree::remove(int key){
+	if(root == nullptr){
+		return false;
+	}
+
+	void* deletionNode = ((Node*)root)->findLeaf(key);
+	if( !((LeafNode*)deletionNode)->contains(key)){
+		return false; //duplicates are not allowed
+	}
+
+	((Node*)root)->remove(key);
+
+	if( ((Node*)root)->  isEmpty()){ //only returns true with InnerNodes that have empty pointer vectors
+		void* temp = root;
+		root = ((InnerNode*)root)->extra;
+		((Node*)root)->parent = nullptr;
+		delete (Node*)temp;
+	}
 	return true;
 }
 
@@ -44,19 +74,28 @@ bool BpTree::remove(int key){
 *If the key is not in the B+Tree, will return the empty string ""
  */
 std::string BpTree::find(int key) const{
-	return "";
+	if(root == nullptr){
+		return "";
+	}
+	return ((Node*)root)->find(key);
 }
 
 /*
  *Prints all keys in the B+ Tree to standard output to match Tree's structure
  */
 void BpTree::printKeys() const{
-	std::cout << "printKeys\n";
+	if(root == nullptr){
+		return;
+	}
+	((Node*)root)->printNode();
 }
 
 /*
  *Prints all values in the B+ Tree to standard output
  */
 void BpTree::printValues() const{
-	std::cout << "printValues\n";
+	if(root == nullptr){
+		return;
+	}
+	((Node*)root)->printValues();
 }
