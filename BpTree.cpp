@@ -15,10 +15,13 @@ BpTree::BpTree(int n){
 
 BpTree::BpTree(BpTree& other){ //need to make copy
 	nodeSize = other.nodeSize;
-	if(other.root == nullptr){
+	if(other.root == nullptr){//don't need to copy empty trees
 		root = nullptr;
 		return;
 	}
+
+	root = ((Node*)other.root)->copySubTree();
+	((Node*)root)->fixSiblings();
 }
 
 BpTree::~BpTree(){
@@ -80,7 +83,9 @@ std::string BpTree::find(int key) const{
 	if(root == nullptr){
 		return "";
 	}
-	return ((Node*)root)->find(key);
+
+	void* leaf = ((Node*)root)->findLeaf(key);
+	return ((Node*)leaf)->find(key);
 }
 
 /*

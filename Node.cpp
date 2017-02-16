@@ -89,10 +89,15 @@ void Node::fullDeletion(){}
 
 void* Node::findLeaf(int key){ return this;}
 
+void* Node::copySubTree(){return this;}
+
+void Node::fixSiblings(){}
+
 //-----------------------------------
 //InnerNode implementation
 //-----------------------------------
 InnerNode::InnerNode(int n) : Node(n){
+	isLeaf = false;
 	extra = nullptr;
 }
 
@@ -264,6 +269,7 @@ std::string InnerNode::find(int key){
 		}
 		return ""; //you searched in an empty tree, dumbass!
 	}
+
 	if(key < keyPointerIndex.at(0).first){
 		return ((Node*)extra)->find(key);
 	}
@@ -272,6 +278,7 @@ std::string InnerNode::find(int key){
 	}
 
 	void* nextNode = keyPointerIndex.at(i-1).second;
+	((Node*)nextNode)->printNode();
 	return ((Node*)nextNode)->find(key);
 }
 
@@ -590,11 +597,60 @@ void InnerNode::fullDeletion(){
 	((Node*)extra)->fullDeletion();
 	delete (Node*)extra;
 }
+
+void* InnerNode::copySubTree(){
+	void* subTree = new InnerNode(nodeSize);
+
+	//copy extra ptr
+	((InnerNode*)subTree)->extra = ((Node*)extra)->copySubTree();
+
+	//copy trees in the vector
+	std::pair<int, void*> p;
+	for(int i = 0; i < keyPointerIndex.size(); i++){
+		p = keyPointerIndex.at(i);
+		((InnerNode*)subTree)->keyPointerIndex.push_back(std::pair<int, void*>(p.first, ((Node*)p.second)->copySubTree()));
+	}
+	return subTree;
+}
+
+void InnerNode::fixSiblings(){
+	//fix sibling/parent pointers for the extra child
+	if(leftSibling != nullptr){
+		((Node*)extra)->leftSibling = ((InnerNode*)leftSibling)->keyPointerIndex.back().second;
+	}
+	((Node*)extra)->rightSibling = keyPointerIndex.at(0).second;
+	((Node*)extra)->parent = this;
+	((Node*)extra)->fixSiblings(); //fix sibling for the subtree
+
+	//fix sibling/parent pointers for the child in position 0
+	((Node*)keyPointerIndex.at(0).second)->leftSibling = extra;
+	if(keyPointerIndex.size() > 1){
+		((Node*)keyPointerIndex.at(0).second)->rightSibling = keyPointerIndex.at(1).second;
+	}
+	((Node*)keyPointerIndex.at(0).second)->parent = this;
+	((Node*)keyPointerIndex.at(0).second)->fixSiblings();
+	//fix sibling/parent pointers for middle children
+ 	int i;
+	for(i = 1; i < keyPointerIndex.size()-1; i++){
+		((Node*)keyPointerIndex.at(i).second)->leftSibling = keyPointerIndex.at(i-1).second;
+		((Node*)keyPointerIndex.at(i).second)->rightSibling = keyPointerIndex.at(i+1).second;
+		((Node*)keyPointerIndex.at(i).second)->parent = this;
+		((Node*)keyPointerIndex.at(i).second)->fixSiblings();
+	}
+	//fix sibling/parent pointers for final child
+	((Node*)keyPointerIndex.at(i).second)->leftSibling = keyPointerIndex.at(i-1).second;
+	if(rightSibling != nullptr){
+		((Node*)keyPointerIndex.at(i).second)->rightSibling = ((InnerNode*)rightSibling)->extra;
+	}
+	((Node*)keyPointerIndex.at(i).second)->parent = this;
+	((Node*)keyPointerIndex.at(i).second)->fixSiblings();
+
+}
 //-----------------------------------
 //LeafNode implementation
 //-----------------------------------
 LeafNode::LeafNode(int n) : Node(n){
-
+	isLeaf = true;
 }
 
 /*
@@ -727,7 +783,7 @@ void* LeafNode::split(){
  */
 std::string LeafNode::find(int key){
 	for(int i = 0; i < keyValueIndex.size(); i++){
-		if(keyValueIndex.at(i).first == key){
+			if(keyValueIndex.at(i).first == key){
 			return keyValueIndex.at(i).second;
 		}
 	}
@@ -912,4 +968,21 @@ void LeafNode::fullDeletion(){
 
 void* LeafNode::findLeaf(int key){
 	return this; 
+}
+
+void* LeafNode::copySubTree(){
+	void* subTree = new LeafNode(nodeSize);
+	int key;
+	std::string value;
+	for(int i = 0; i < keyValueIndex.size(); i++){
+		key = keyValueIndex.at(i).first;
+		value = keyValueIndex.at(i).second;
+		((Node*)subTree)->insert(key, value);
+	}
+	return subTree;
+}
+
+void LeafNode::fixSiblings(){
+	//don't have any children to fix, does nothing
+	return;
 }

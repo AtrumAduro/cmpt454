@@ -19,6 +19,7 @@ class Node{
 	friend class BpTree;
 
 	public:
+		bool isLeaf;
 		/*
 		 *Constructs an empty node with maximum size n
 		 */
@@ -81,6 +82,14 @@ class Node{
 		virtual void fullDeletion();
 
 		virtual void* findLeaf(int key);
+
+		//helper function to copy the tree
+		virtual void* copySubTree();
+
+		//final step of copying a tree
+		//fixes the siblings of all children of the current node
+		//and tells each node that it is the parent
+		virtual void fixSiblings();
 		
 	protected:
 		int nodeSize; //max number of keys in the node
@@ -184,6 +193,10 @@ class InnerNode : public Node{
 		bool isEmpty() const;
 
 		virtual void fullDeletion();
+
+		void* copySubTree();
+
+		void fixSiblings();
 
 		
 	protected:
@@ -312,6 +325,11 @@ class LeafNode : public Node{
 		void fullDeletion();
 
 		void* findLeaf(int key);
+
+
+		void* copySubTree();
+		
+		void fixSiblings();
 
 	private:
 		//list of integer keys and their corresponding string values

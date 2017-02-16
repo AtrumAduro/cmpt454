@@ -328,13 +328,40 @@ int main(){
 	}
 	testTree.printKeys();
 
-	for(int i = 0; i < 19; i++){
-		//if(keys[i] % 2 == 0){
-			std::cout << "Removing " << keys[i] << "\n";
-			testTree.remove(keys[i]);
-			testTree.printKeys();
-			std::cout << "\n";
-		//}
-	}
+	BpTree copyTest = testTree;
+	std::cout << "Copied tree contains\n";
+	copyTest.printKeys();
+
+	copyTest.insert(666, "final test!");
+	copyTest.insert(-1, "final test");
+	copyTest.insert(22, "final test");
+	std::cout << "After inserting to copyTest, contains:\n";
+	copyTest.printKeys();
+
+	std::cout <<"\ntestTree contains:\n";
+	testTree.printKeys();
+
+	copyTest.remove(11);
+	copyTest.remove(19);copyTest.remove(21);copyTest.remove(22);
+
+	std::cout << "After removing from copyTest contains:\n";
+	copyTest.printKeys();
+
+	std::cout <<"Reinserting 2 (already in copyTest)\n";
+	copyTest.insert(2, "duplicate");
+	copyTest.printKeys();
+
+std::cout <<"\nTrying to remove 4 (doesn't exist)\n";
+copyTest.remove(4);
+copyTest.printKeys();
+
+for(int i = 0; i < 19; i++){
+	std::cout << "Searching for " << keys[i] << " returns " << copyTest.find(keys[i]) << "\n";
+	std::cout << "Searching for " << keys[i] << " in the original tree returns " << testTree.find(keys[i]) << "\n";
+ }
+
+ copyTest.printValues();
+
+
 	return 0;
 }
