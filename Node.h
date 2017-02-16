@@ -49,7 +49,7 @@ class Node{
 		 *General removal. All real implementation is taken care of
 		 *in the subclasses InnerNode and LeafNode
 		 */
-		virtual void remove(int key);
+		virtual void* remove(int key);
 		
 		/*
 		 *General key lookup. All real implementation is taken care of
@@ -134,7 +134,7 @@ class InnerNode : public Node{
 		 *If this causes a Node or Nodes to be less than half full, keys and reference pointers may
 		 *need to be rearranged to maintain proper tree structure
 		 */
-		void remove(int key);
+		void* remove(int key);
 
 		/*
 		 *updates the keys to match a modified child node
@@ -144,11 +144,11 @@ class InnerNode : public Node{
 		/*
 		 *Removes the references to the deleted child Node from the InnerNode
 		 */
-		void removeLeftChild(void* deadChild);
+		void* removeLeftChild(void* deadChild);
 
 		/*Removes the reference to the deleted child Node from the InnerNOde
 		*/
-		void removeRightChild(void* deadChild);
+		void* removeRightChild(void* deadChild);
 
 		/*
 		 *Returns the first key of the Node for indexing
@@ -264,7 +264,7 @@ class LeafNode : public Node{
 		 *Removes the key from the leaf Node. If this would cause the node to be less than half full
 		 *will rearrange keys and values from sibling nodes to maintain structure of the tree
 		 */
-		void remove(int key);
+		void* remove(int key);
 
 		/*
 		 *Returns the first key of the Node for indexing

@@ -211,18 +211,18 @@ bool testDeletion(){
 	// [-2, -1] [0, 1] [2, 3] [4, 5] [6, 9] [10, 13, 14] 
 	//delete 6, 9 to force coalese
 	std::cout << "Removing 6\n";
-	((Node*)testNode4)->remove(6);
+	testNode4 = ((Node*)testNode4)->remove(6);
 	((Node*)testNode4)->printNode();
 	std::cout<<std::endl;
 	std::cout << "Removing 9\n";
-	((Node*)testNode4)->remove(9);
+	testNode4 = ((Node*)testNode4)->remove(9);
 	((Node*)testNode4)->printNode();
 	std::cout << "\n";
 
 	for(int i = 0; i <=3; i++){
 		std::cout << "removing " << i << "\n";
 		std::cout << "BEFORE REMOVING " << i << " find(-2) returns " << ((Node*)testNode4)->find(-2) << std::endl;
-		((Node*)testNode4)->remove(i);
+		testNode4 = ((Node*)testNode4)->remove(i);
 		std::cout << "AFTER REMOVING " << i << " find(-2) returns " << ((Node*)testNode4)->find(-2) << std::endl;
 		((Node*)testNode4)->printNode();
 		std::cout<<"\n";		
