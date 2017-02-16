@@ -59,7 +59,7 @@ void Node::printNode() const{
  *General removal. All real implementation is taken care of
  *in the subclasses InnerNode and LeafNode
  */
-void* Node::remove(int key){return this;}
+void Node::remove(int key){return;}
 
 /*
  *General key lookup. All real implementation is taken care of
@@ -321,10 +321,10 @@ void InnerNode::printNode() const{
  *If this causes a Node or Nodes to be less than half full, keys and reference pointers may
  *need to be rearranged to maintain proper tree structure
  */
-void* InnerNode::remove(int key){
+void InnerNode::remove(int key){
 	if(keyPointerIndex.empty()){
 		((Node*)extra)->remove(key);
-		return this;
+		return;
 	}
 	std::cout <<"Looking for " << key << " in node [";
 	for(int i = 0; i < keyPointerIndex.size(); i++){
@@ -363,12 +363,8 @@ void InnerNode::updateChildKey(int old, int newKey){
 /*
  *Removes the references to the deleted child Node from the InnerNode
  */
-void* InnerNode::removeLeftChild(void* deadChild){
+void InnerNode::removeLeftChild(void* deadChild){
 	int i;
-	void* returnValue = this;
-	while( ((Node*)returnValue)->parent != nullptr){
-		returnValue = ((Node*)returnValue)->parent;
-	}
 	if((Node*)extra == (Node*)deadChild){
 		i=0;
 		extra = keyPointerIndex.at(0).second;
@@ -398,33 +394,26 @@ void* InnerNode::removeLeftChild(void* deadChild){
 			//an explicitly corresponding key
 			if(((InnerNode*)leftSibling)->keyPointerIndex.size()-1 >= nodeSize/2 ){
 				borrowLeft();
-				return returnValue;
+				return;
 			}
 		}
 		//Case 2 -- try to borrow from right
 		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
 			if( ((InnerNode*)rightSibling)->keyPointerIndex.size() - 1 >= nodeSize/2){
 				borrowRight();
-				return returnValue;
+				return;
 			}
 		}
 		//Case 3 -- try to coalese with left
 		if(leftSibling != nullptr && ((InnerNode*)leftSibling)->parent == parent){
 			coaleseLeft();
+			return;
 		}
 		//case 4 -- try to coalese with right
-		else if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
+		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
 			coaleseRight();
 		}
 	}
-
-	if( ((InnerNode*)parent)->keyPointerIndex.empty()){ //root pointer is empty, need to remove
-		std::cout<< "Deleted empty root\n";
-		delete (Node*)parent;
-		parent = nullptr;
-		return this;
-	}
-	return returnValue;
 }
 
 void InnerNode::borrowLeft(){
@@ -532,11 +521,7 @@ void InnerNode::shiftPointersLeft(){
 	}
 }
 
-void* InnerNode::removeRightChild(void* deadChild){
-	void* returnValue = this;
-	while( ((Node*)returnValue)->parent != nullptr){
-		returnValue = ((Node*)returnValue)->parent;
-	}
+void InnerNode::removeRightChild(void* deadChild){
 	int i;
 	//don't need to check extra ptr, because we're coalesing from right into left sibling, therefore
 	//there exists at least one sibling to the left of right
@@ -561,34 +546,26 @@ void* InnerNode::removeRightChild(void* deadChild){
 			//an explicitly corresponding key
 			if(((InnerNode*)leftSibling)->keyPointerIndex.size()-1 >= nodeSize/2 ){
 				borrowLeft();
-				return returnValue;
+				return;
 			}
 		}
 		//Case 2 -- try to borrow from right
 		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
 			if( ((InnerNode*)rightSibling)->keyPointerIndex.size() - 1 >= nodeSize/2){
 				borrowRight();
-				return returnValue;
+				return;
 			}
 		}
 		//Case 3 -- try to coalese with left
 		if(leftSibling != nullptr && ((InnerNode*)leftSibling)->parent == parent){
 			coaleseLeft();
+			return;
 		}
 		//case 4 -- try to coalese with right
-		else if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
+		if(rightSibling != nullptr && ((InnerNode*)rightSibling)->parent == parent){
 			coaleseRight();
-		}	
-
+		}
 	}
-	if( ((InnerNode*)parent)->keyPointerIndex.empty()){ //root pointer is empty, need to remove
-		std::cout << "Deleted empty root\n";
-		delete (Node*)parent;
-		parent = nullptr;
-		return this;
-	}
-	//no changes made to parent, return root of the tree
-	return returnValue;
 }
 
 /*
@@ -776,11 +753,7 @@ std::string LeafNode::find(int key){
  *Removes the key from the leaf Node. If this would cause the node to be less than half full
  *will rearrange keys and values from sibling nodes to maintain structure of the tree
  */
-void* LeafNode::remove(int keyToRemove){
-	void* returnValue = this;
-	while( ((Node*)returnValue)->parent != nullptr){
-		returnValue = ((Node*)returnValue)->parent;
-	}
+void LeafNode::remove(int keyToRemove){
 	std::cout <<"Looking in node [";
 	for(int i = 0; i < keyValueIndex.size(); i++){
 		std::cout<< keyValueIndex.at(i).first << " ";
@@ -796,11 +769,11 @@ void* LeafNode::remove(int keyToRemove){
 		iterator++;
 	}
 	if(!found){ //key was not found
-		return returnValue;
+		return;
 	}
 
 	if(keyValueIndex.size() > nodeSize/2){ //still more than half full
-		return returnValue;
+		return;
 	}
 
 	// if(keyToRemove == 2) {
@@ -825,14 +798,14 @@ void* LeafNode::remove(int keyToRemove){
 	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
 		if( ((LeafNode*)leftSibling)->keyValueIndex.size()-1 > nodeSize/2){
 			borrowLeft(keyToRemove);
-			return returnValue;
+			return;
 		}
 	}
 	//Case 2 -- Try to borrow from right sibling if it exists
 	if(rightSibling != nullptr && ((LeafNode*)rightSibling)->parent == parent){
 		if( ((LeafNode*)rightSibling)->keyValueIndex.size() - 1 > nodeSize/2){
 			borrowRight();
-			return returnValue;
+			return;
 		}
 	}
 	//Case 3 -- Try to coalese with left
@@ -841,21 +814,12 @@ void* LeafNode::remove(int keyToRemove){
 			std::cout <<"Trying to coalses with leftSibling\n";
 		}
 		coaleseLeft();
-		returnValue = this; //reset returnValue
-		while ( ((Node*)returnValue)->parent != nullptr){
-			returnValue = ((Node*)returnValue)->parent;
-		}
-		return returnValue;
+		return;
 	}
 	//Case 4 -- coalese with right
 	//try telling rightSibling to coalese left
 	if(rightSibling != nullptr && ((LeafNode*)rightSibling)->parent == parent){
 		coaleseRight();
-		returnValue = this; //reset returnValue
-		while ( ((Node*)returnValue)->parent != nullptr){
-			returnValue = ((Node*)returnValue)->parent;
-		}
-		return returnValue;
 	}
 }
 
