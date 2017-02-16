@@ -230,6 +230,10 @@ void* InnerNode::split(){
 	((InnerNode *)rightSibling)->rightSibling = temp;
 	((InnerNode *)rightSibling)->parent = parent;
 
+	if(temp != nullptr){
+		((InnerNode*)temp)->leftSibling = rightSibling;
+	}
+
 	//Move last (n+1)/2 keys to the new node
 	int key;
 	void* child;
@@ -693,6 +697,10 @@ void* LeafNode::split(){
 	((LeafNode *)rightSibling)->leftSibling = this;
 	((LeafNode *)rightSibling)->rightSibling = temp;
 	((LeafNode *)rightSibling)->parent = parent;
+	//tell the old rightSibling it has a new baby brother
+	if(temp != nullptr){
+		((LeafNode*)temp)->leftSibling = rightSibling;
+	}
 
 	//Move last (n+1)/2 keys to the new node
 	auto iterator = keyValueIndex.end();
@@ -768,22 +776,22 @@ void LeafNode::remove(int keyToRemove){
 		return;
 	}
 
-	if(keyToRemove == 2) {
-		std::cout << "\nLeafNode::remove BEFORE determining if we need to coalese or redistribute\n\n";
-		std::cout << "\nLeafNode::remove LEFT SIBLING\t" << ((LeafNode*)leftSibling) << "\n";
-		((LeafNode*)leftSibling)->printNode();
-		std::cout << "\nLeafNode::remove LEFT SIBLING's RIGHT SIBLING\t" << ((LeafNode*)((LeafNode*)leftSibling)->rightSibling) << "\n";
-		((LeafNode*)((LeafNode*)leftSibling)->rightSibling)->printNode();
-		std::cout << "\nLeafNode::remove PARENT\t" << ((InnerNode*)parent) << "\n";
-		((InnerNode*)parent)->printNode();
-		std::cout << "\nLeafNode::remove LEFT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)leftSibling)->parent) << "\n";
-		((InnerNode*)((LeafNode*)leftSibling)->parent)->printNode();
-		std::cout << "\nLeafNode::remove RIGHT SIBLING\t" << ((LeafNode*)rightSibling) << "\n";
-		((LeafNode*)rightSibling)->printNode();
-		std::cout << "\nLeafNode::remove RIGHT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)rightSibling)->parent) << "\n";
-		((InnerNode*)((LeafNode*)rightSibling)->parent)->printNode();
-		std::cout << "LeafNode::remove FINISHED PRINTING DEBUG STATEMENTS\n\n";
-	}
+	// if(keyToRemove == 2) {
+	// 	std::cout << "\nLeafNode::remove BEFORE determining if we need to coalese or redistribute\n\n";
+	// 	std::cout << "\nLeafNode::remove LEFT SIBLING\t" << ((LeafNode*)leftSibling) << "\n";
+	// 	((LeafNode*)leftSibling)->printNode();
+	// 	std::cout << "\nLeafNode::remove LEFT SIBLING's RIGHT SIBLING\t" << ((LeafNode*)((LeafNode*)leftSibling)->rightSibling) << "\n";
+	// 	//((LeafNode*)((LeafNode*)leftSibling)->rightSibling)->printNode();
+	// 	std::cout << "\nLeafNode::remove PARENT\t" << ((InnerNode*)parent) << "\n";
+	// 	((InnerNode*)parent)->printNode();
+	// 	std::cout << "\nLeafNode::remove LEFT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)leftSibling)->parent) << "\n";
+	// 	((InnerNode*)((LeafNode*)leftSibling)->parent)->printNode();
+	// 	std::cout << "\nLeafNode::remove RIGHT SIBLING\t" << ((LeafNode*)rightSibling) << "\n";
+	// 	((LeafNode*)rightSibling)->printNode();
+	// 	std::cout << "\nLeafNode::remove RIGHT SIBLING PARENT\t" << ((InnerNode*)((LeafNode*)rightSibling)->parent) << "\n";
+	// 	((InnerNode*)((LeafNode*)rightSibling)->parent)->printNode();
+	// 	std::cout << "LeafNode::remove FINISHED PRINTING DEBUG STATEMENTS\n\n";
+	// }
 
 	//The node is less than half full
 	//Case 1 -- Try to borrow from left sibling if it exists
@@ -802,6 +810,9 @@ void LeafNode::remove(int keyToRemove){
 	}
 	//Case 3 -- Try to coalese with left
 	if(leftSibling != nullptr && ((LeafNode*)leftSibling)->parent == parent){
+		if(keyToRemove == 2){
+			std::cout <<"Trying to coalses with leftSibling\n";
+		}
 		coaleseLeft();
 		return;
 	}

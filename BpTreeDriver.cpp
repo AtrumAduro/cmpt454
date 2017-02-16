@@ -152,17 +152,17 @@ bool testDeletion(){
 	//create new tree of structure
 	//[4]
 	//[2, 3] [4, 5]
-	void* testNode2 = new LeafNode(3);
-	testNode2 = ((Node*)testNode2)->insert(2, "hi");
-	testNode2 = ((Node*)testNode2)->insert(3, "hi");
-	testNode2 = ((Node*)testNode2)->insert(4, "hi");
-	testNode2 = ((Node*)testNode2)->insert(5, "hi");
-	((Node*)testNode2)->printNode();
+	// void* testNode2 = new LeafNode(3);
+	// testNode2 = ((Node*)testNode2)->insert(2, "hi");
+	// testNode2 = ((Node*)testNode2)->insert(3, "hi");
+	// testNode2 = ((Node*)testNode2)->insert(4, "hi");
+	// testNode2 = ((Node*)testNode2)->insert(5, "hi");
+	// ((Node*)testNode2)->printNode();
 
-	//remove 3
-	((Node*)testNode2)->remove(3);
-	std::cout << "AFter deleting 3:\n";
-	((Node*)testNode2)->printNode();
+	// //remove 3
+	// ((Node*)testNode2)->remove(3);
+	// std::cout << "AFter deleting 3:\n";
+	// ((Node*)testNode2)->printNode();
 
 
 	//std::cout << std::endl;
@@ -319,8 +319,8 @@ void newDeletion(){
 int main(){
 	std::cout <<"Driver program\n";
 	
-	newDeletion();
-	//testDeletion();
+	//newDeletion();
+	testDeletion();
 	// std::cout <<"Testing printing of the tree\n";
 	// testPrint();
 
