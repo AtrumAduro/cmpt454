@@ -15,7 +15,10 @@ BpTree::BpTree(int n){
 
 BpTree::BpTree(BpTree& other){ //need to make copy
 	nodeSize = other.nodeSize;
-	root = other.root; //temporary just to compile. Needs to be made proper
+	if(other.root == nullptr){
+		root = nullptr;
+		return;
+	}
 }
 
 BpTree::~BpTree(){
