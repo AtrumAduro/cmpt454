@@ -78,12 +78,24 @@ class Node{
 		/*returns true if there are no keys in the vector*/
 		virtual bool isEmpty() const;
 
-		/*deletes all child nodes and values*/
+		/*
+		 *Helper function to delete the tree
+		 *Recursively deletes all nodes of the subtree
+		 */
 		virtual void fullDeletion();
 
+		/*
+		 *Returns the node that does or would contain the key
+		 */
 		virtual void* findLeaf(int key);
 
-		//helper function to copy the tree
+		/*
+		 *Helper function to create a copy of the tree
+		 *returns pointer to a new copy of the subtree
+		 *The copied subtree will have the same node structure as the original,
+		 *but sibling and parent pointers will not be assigned. Call fixSiblings() on the copied
+		 *tree to correctly connect the nodes
+		 */
 		virtual void* copySubTree();
 
 		//final step of copying a tree
@@ -165,7 +177,8 @@ class InnerNode : public Node{
 		 */
 		void removeLeftChild(void* deadChild);
 
-		/*Removes the reference to the deleted child Node from the InnerNOde
+		/*
+		 *Removes the reference to the deleted child Node from the InnerNOde
 		*/
 		void removeRightChild(void* deadChild);
 
@@ -186,16 +199,36 @@ class InnerNode : public Node{
 		virtual void setParent(void* newParent);
 
 		/*
-		 *Prints the values of the tree to standard output
+		 *Prints the values of the tree to standard output, each on a separate line
 		 */
 		void printValues();
 
+		/*
+		 *Returns true if the keyPointerIndex is empty, false otherwise
+		 *Used to determine if the root node of the tree has become empty, if so, may promote next node as new root
+		 */
 		bool isEmpty() const;
 
+		/*
+		 *Helper function to delete the tree
+		 *Recursively deletes all nodes of the subtree
+		 */
 		virtual void fullDeletion();
 
+		/*
+		 *Helper function to create a copy of the tree
+		 *returns pointer to a new copy of the subtree
+		 *The copied subtree will have the same node structure as the original,
+		 *but sibling and parent pointers will not be assigned. Call fixSiblings() on the copied
+		 *tree to correctly connect the nodes
+		 */
 		void* copySubTree();
 
+		/*
+		 *Helper function in copying a tree
+		 *Fixes the sibling and parent pointers of a newly created tree so that regular operations
+		 *can function correctly
+		 */
 		void fixSiblings();
 
 		
@@ -243,6 +276,10 @@ class InnerNode : public Node{
 		 */
 		void coaleseLeft();
 
+		/*
+		 *If coalesing left is not possible, merge with the right sibling to maintain proper
+		 *tree structure
+		 */
 		void coaleseRight();
 
 		/*
@@ -251,10 +288,6 @@ class InnerNode : public Node{
 		 *down
 		 */
 		void shiftPointersLeft();
-
-
-
-
 };
 
 class LeafNode : public Node{
@@ -320,15 +353,37 @@ class LeafNode : public Node{
 		//returns true if the node contains the key, false otherwise
 		bool contains(int key);
 
+		/*
+		 *Returns true if the keyPointerIndex is empty, false otherwise
+		 *Used to determine if the root node of the tree has become empty, if so, may promote next node as new root
+		 */
 		bool isEmpty() const;
 
+		/*
+		 *Helper function to delete the tree
+		 *Recursively deletes all nodes of the subtree
+		 */
 		void fullDeletion();
 
+		/*
+		 *Returns the node that does or would contain the key
+		 */
 		void* findLeaf(int key);
 
-
+		/*
+		 *Helper function to create a copy of the tree
+		 *returns pointer to a new copy of the subtree
+		 *The copied subtree will have the same node structure as the original,
+		 *but sibling and parent pointers will not be assigned. Call fixSiblings() on the copied
+		 *tree to correctly connect the nodes
+		 */
 		void* copySubTree();
 		
+		/*
+		 *Helper function in copying a tree
+		 *Fixes the sibling and parent pointers of a newly created tree so that regular operations
+		 *can function correctly
+		 */
 		void fixSiblings();
 
 	private:
@@ -366,6 +421,10 @@ class LeafNode : public Node{
 		 */
 		void* coaleseLeft();
 
+		/*
+		 *If coalesing left is not possible, merge with the right sibling to maintain proper
+		 *tree structure
+		 */
 		void* coaleseRight();
 };
 #endif

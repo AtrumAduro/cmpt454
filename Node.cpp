@@ -75,22 +75,52 @@ void* Node::getParent() const{
 	return parent;
 }
 
+/*
+ *Updates the parent pointer of the node
+ *used when the parent has split and needs to inform its new children of the change
+ */
 void Node::setParent(void* newParent){
 
 }
 
+/*
+ *Prints the values of the tree to standard output
+ */
 void Node::printValues(){
 
 }
 
+/*
+ *Returns true if the keyPointerIndex is empty, false otherwise
+ *Used to determine if the root node of the tree has become empty, if so, may promote next node as new root
+ */
 bool Node::isEmpty() const {return true;}
 
+/*
+ *Helper function to delete the tree
+ *Recursively deletes all nodes of the subtree
+ */
 void Node::fullDeletion(){}
 
+/*
+ *Returns the node that does or would contain the key
+ */
 void* Node::findLeaf(int key){ return this;}
 
+/*
+ *Helper function to create a copy of the tree
+ *returns pointer to a new copy of the subtree
+ *The copied subtree will have the same node structure as the original,
+ *but sibling and parent pointers will not be assigned. Call fixSiblings() on the copied
+ *tree to correctly connect the nodes
+ */
 void* Node::copySubTree(){return this;}
 
+/*
+ *Helper function in copying a tree
+ *Fixes the sibling and parent pointers of a newly created tree so that regular operations
+ *can function correctly
+ */
 void Node::fixSiblings(){}
 
 //-----------------------------------
@@ -403,6 +433,11 @@ void InnerNode::removeLeftChild(void* deadChild){
 	}
 }
 
+/*
+ *Helper function for removal
+ *If a node becomes less than half full, it may try borrowing from its
+ *sibling to maintain the correct structure of the tree
+ */
 void InnerNode::borrowLeft(){
 	int updateKey;
 	auto iterator = ((InnerNode*)parent)->keyPointerIndex.begin();
@@ -428,6 +463,11 @@ void InnerNode::borrowLeft(){
 	((InnerNode*)parent)->updateChildKey(keyToUpdate, getKey());
 }
 
+/*
+ *Helper function for removal
+ *If a node becomes less than half full, it may try borrowing from its
+ *sibling to maintain the correct structure of the tree
+ */
 void InnerNode::borrowRight(){
 	//copy extra pointer and corresponding key from right sibling
 	void* newPointer = ((InnerNode*)rightSibling)->extra;
@@ -438,6 +478,10 @@ void InnerNode::borrowRight(){
 	((InnerNode*)keyPointerIndex.back().second)->setParent(this);
 }
 
+/*
+ *If we cannot borrow from siblings, need to merge the siblings
+ *together
+ */
 void InnerNode::coaleseLeft(){
 	//copy extra from this node into the vector
 	insertFromChild( ((Node*)extra)->getKey(), extra);
@@ -466,6 +510,10 @@ void InnerNode::coaleseLeft(){
 
 }
 
+/*
+ *If coalesing left is not possible, merge with the right sibling to maintain proper
+ *tree structure
+ */
 void InnerNode::coaleseRight(){
 	//insert all values from right sibling into current node
 	//start with the extra pointer
@@ -493,6 +541,11 @@ void InnerNode::coaleseRight(){
 	delete temp;
 }
 
+/*
+ *Called when borrowing key from right sibling
+ *after the key, pointer has been copied, need to shift everything
+ *down
+ */
 void InnerNode::shiftPointersLeft(){
 	//overwrite extra
 	extra = keyPointerIndex.at(0).second;
@@ -507,6 +560,9 @@ void InnerNode::shiftPointersLeft(){
 	}
 }
 
+/*
+ *Removes the reference to the deleted child Node from the InnerNOde
+*/
 void InnerNode::removeRightChild(void* deadChild){
 	int i;
 	//don't need to check extra ptr, because we're coalesing from right into left sibling, therefore
@@ -571,19 +627,34 @@ void* InnerNode::getParent() const{
 	return parent;
 }
 
+/*
+ *Updates the parent pointer of the node
+ *used when the parent has split and needs to inform its new children of the change
+ */
 void InnerNode::setParent(void* newParent){
 	parent = newParent;
 }
 
+/*
+ *Prints the values of the tree to standard output, each on a separate line
+ */
 void InnerNode::printValues(){
 	//search for the left-most leafNode and begin printing values
 	((Node*)extra)->printValues();
 }
 
+/*
+ *Returns true if the keyPointerIndex is empty, false otherwise
+ *Used to determine if the root node of the tree has become empty, if so, may promote next node as new root
+ */
 bool InnerNode::isEmpty() const {
 	return keyPointerIndex.empty();
 }
 
+/*
+ *Helper function to delete the tree
+ *Recursively deletes all nodes of the subtree
+ */
 void InnerNode::fullDeletion(){
 
 	auto iterator = keyPointerIndex.begin();
@@ -598,6 +669,13 @@ void InnerNode::fullDeletion(){
 	delete (Node*)extra;
 }
 
+/*
+ *Helper function to create a copy of the tree
+ *returns pointer to a new copy of the subtree
+ *The copied subtree will have the same node structure as the original,
+ *but sibling and parent pointers will not be assigned. Call fixSiblings() on the copied
+ *tree to correctly connect the nodes
+ */
 void* InnerNode::copySubTree(){
 	void* subTree = new InnerNode(nodeSize);
 
@@ -613,6 +691,11 @@ void* InnerNode::copySubTree(){
 	return subTree;
 }
 
+/*
+ *Helper function in copying a tree
+ *Fixes the sibling and parent pointers of a newly created tree so that regular operations
+ *can function correctly
+ */
 void InnerNode::fixSiblings(){
 	//fix sibling/parent pointers for the extra child
 	if(leftSibling != nullptr){
@@ -853,10 +936,19 @@ void* LeafNode::getParent() const{
 	return parent;
 }
 
+/*
+ *Updates the parent pointer of the node
+ *used when the parent has split and needs to inform its new children of the change
+ */
 void LeafNode::setParent(void* newParent){
 	parent = newParent;
 }
 
+/*
+ *Helper function for removal
+ *If a node becomes less than half full, it may try borrowing from its
+ *sibling to maintain the correct structure of the tree
+ */
 void LeafNode::borrowLeft(int oldKey){
 	int replacementKey = getKey();
 	int newKey = ((LeafNode*)leftSibling)->keyValueIndex.back().first;
@@ -869,6 +961,11 @@ void LeafNode::borrowLeft(int oldKey){
 	((InnerNode*)parent)->updateChildKey(replacementKey, getKey());
 }
 
+/*
+ *Helper function for removal
+ *If a node becomes less than half full, it may try borrowing from its
+ *sibling to maintain the correct structure of the tree
+ */
 void LeafNode::borrowRight(){
 	int newKey = ((LeafNode*)rightSibling)->keyValueIndex.front().first;
 	std::string value = ((LeafNode*)rightSibling)->keyValueIndex.front().second;
@@ -880,6 +977,10 @@ void LeafNode::borrowRight(){
 	((InnerNode*)parent)->updateChildKey(keyValueIndex.back().first, ((LeafNode*)rightSibling)->keyValueIndex.front().first);	
 }
 
+/*
+ *If we cannot borrow from siblings, need to merge the siblings
+ *together
+ */
 void* LeafNode::coaleseLeft(){
 	void* returnValue = this;
 	//insert all values from the left sibling into current node
@@ -910,6 +1011,10 @@ void* LeafNode::coaleseLeft(){
 	return returnValue;
 }
 
+/*
+ *If coalesing left is not possible, merge with the right sibling to maintain proper
+ *tree structure
+ */
 void* LeafNode::coaleseRight(){
 	void* returnValue = this;
 	//insert all values from right sibling into current node
@@ -935,6 +1040,9 @@ void* LeafNode::coaleseRight(){
 	return returnValue;
 }
 
+/*
+ *Prints the values of the tree to standard output, each on a separate line
+ */
 void LeafNode::printValues(){
 	//print all values in the node on a new line
 	for(int i = 0; i < keyValueIndex.size(); i++){
@@ -946,6 +1054,9 @@ void LeafNode::printValues(){
 	}
 }
 
+/*
+ /returns true if the node contains the key, false otherwise
+ */
 bool LeafNode::contains(int key){
 	auto iterator = keyValueIndex.begin();
 	while(iterator != keyValueIndex.end()){
@@ -957,19 +1068,38 @@ bool LeafNode::contains(int key){
 	return false;
 }
 
+/*
+ *Returns true if the keyPointerIndex is empty, false otherwise
+ *Used to determine if the root node of the tree has become empty, if so, may promote next node as new root
+ *In the case of leafNodes, there are no children to promote, so it does not make sense to return true
+ */
 bool LeafNode::isEmpty() const {
 	return false;
 }
 
+/*
+ *Helper function to delete the tree
+ *Recursively deletes all nodes of the subtree
+ */
 void LeafNode::fullDeletion(){
 	//no dynamically allocated memory in leaves, do nothing
 	return;
 }
 
+/*
+ *Returns the node that does or would contain the key
+ */
 void* LeafNode::findLeaf(int key){
 	return this; 
 }
 
+/*
+ *Helper function to create a copy of the tree
+ *returns pointer to a new copy of the subtree
+ *The copied subtree will have the same node structure as the original,
+ *but sibling and parent pointers will not be assigned. Call fixSiblings() on the copied
+ *tree to correctly connect the nodes
+ */
 void* LeafNode::copySubTree(){
 	void* subTree = new LeafNode(nodeSize);
 	int key;
@@ -982,6 +1112,11 @@ void* LeafNode::copySubTree(){
 	return subTree;
 }
 
+/*
+ *Helper function in copying a tree
+ *Fixes the sibling and parent pointers of a newly created tree so that regular operations
+ *can function correctly
+ */
 void LeafNode::fixSiblings(){
 	//don't have any children to fix, does nothing
 	return;
